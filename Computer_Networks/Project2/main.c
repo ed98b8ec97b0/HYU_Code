@@ -5,7 +5,7 @@ int main(int argc, char const *argv[])
 	char* address;
 
 	if (argc < 2) {
-        fprintf(stderr,"ERROR, no port provided\n");
+        fprintf(STDERR_FILENO,"ERROR, no port provided\n");
         exit(1);
 				printf("%s\n", address);
 
