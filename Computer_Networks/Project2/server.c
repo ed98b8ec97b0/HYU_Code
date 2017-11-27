@@ -30,27 +30,16 @@ int main(int argc, char const *argv[]) {
         fprintf(stderr,"ERROR, no port provided\n");
         exit(1);
     }
-    /*
-    Create a socket
-    PF_INET: IPv4 Protocol family
-    SOCK_STREAM: TCP
-    0: protocol
-    */
+
     if ((server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
         error("ERROR opening socket"); // return -1, fail to create socket
-    // In example, using non-standard func. bzero.
-    // To keep standard, I modify bzero((char *) &serv_addr, sizeof(serv_addr)) to memset((char *) &serv_addr, 0, sizeof(serv_addr))
+
     memset((char *) &server_address, 0, sizeof(server_address));
     port_num = atoi(argv[1]);
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(port_num);
-    /*
-    Bind a socket
-    server_socket = socket file descriptor
-    server_address = IP address and port number
-    sizeof(server_address) = length of address structure
-    */
+
     if (bind(server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
         error("ERROR on binding"); // return = -1, fail to bind a socket
     // Put a socket into passive state
@@ -95,7 +84,7 @@ int main(int argc, char const *argv[]) {
         c_type = "text/plain";
         if (strcmp(file_type, "html") == 0)
             c_type = "text/html";
-        if (strcmp(file_type, "jpg") == 0 || strcmp(file_type, "jpeg") == 0)
+        if (strcmp(file_type, "jpg") == 0 | strcmp(file_type, "jpeg") == 0)
             c_type = "image/jpeg";
         if (strcmp(file_type, "gif") == 0)
             c_type = "image/gif";
