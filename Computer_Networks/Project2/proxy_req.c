@@ -37,6 +37,6 @@ item proxy_req(int portno) {
     req_item.ver = strtok(NULL, " ");
     req_item.ip_addr = cli_addr.sin_addr.s_addr;
     req_item.port_num = cli_addr.sin_port;
-
+	
     return req_item;
 }

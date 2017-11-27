@@ -1,8 +1,7 @@
 #include "proxy.h"
 
 #define GET "GET"
-#define HTTP10 "HTTP/1.0"
-#define HTTP11 "HTTP/1.1"
+#define HTTP "HTTP/1.1"
 
 item proxy_rec(item req_item) {
     int sockfd, n;
@@ -22,12 +21,23 @@ item proxy_rec(item req_item) {
     memset((char *) buffer, 0, BUFF_SIZE);
     serv_addr.sin_family = AF_INET;
     memmove((char *)&serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
-    serv_addr.sin_port = req_item.port_num;
+    serv_addr.sin_port = 80;
 
     n = connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     if (n < 0) {
         error("ERROR connect");
     }
+    
+    char* header = (char *) malloc((strlen(req_item.url) + strlen(GET) + strlen(HTTP) + 2) * sizeof(char));
+    memmove(buffer, header, strlen(header));
+    n = write(sockfd, buffer, strlen(buffer));
+    if (n < 0) {
+        error("ERROR write");
+    }
 
+    n = read(sockfd, buffer, strlen(buffer));
+    if (n < 0) {
+        error("ERROR write");
+    }
     
 }
