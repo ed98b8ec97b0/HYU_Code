@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <netdb.h> 
@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
         token1 = strtok(NULL, " ");
         token2 = strtok(token1, "//");
         token2 = strtok(NULL, "/");
+        printf("strtok OK\n");
         n = strlen(token2);
         url = (char *) malloc(sizeof(char) * n);
         memcpy(url, token2, n);
