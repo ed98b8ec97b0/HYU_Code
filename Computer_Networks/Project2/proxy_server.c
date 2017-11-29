@@ -170,10 +170,10 @@ int main(int argc, char* argv[])
         }
         
         memset(buffer, 0, BUFF_SIZE);
-        free(url);
-        close(serv_sock);
-        close(cli_sock);
+        // free(url);
     }
+    close(serv_sock);
+    close(cli_sock);
     close(proxy_sock);
 
     return 0;
