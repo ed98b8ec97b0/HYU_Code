@@ -12,7 +12,6 @@
 #define BUFF_SIZE 5120
 #define CASH_SIZE 10
 #define NOT_FOUND "HTTP/1.1 404 NOT Found\r\n\r\n"
-
 void error(char *msg) {
     perror(msg);
     exit(1);
@@ -23,7 +22,8 @@ int main(int argc, char* argv[]) {
     int port_no;
     int n;
     char buffer[BUFF_SIZE], tmp[BUFF_SIZE];
-    char *token = NULL, *url = NULL;
+    char* token = NULL;
+    char* url;
     struct sockaddr_in proxy_addr, serv_addr, cli_addr;
     struct hostent *server;
     socklen_t clilen;
@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     if (proxy_sock < 0) {
         error("ERROR proxy socket");
     }
+    
 
     // reset proxy_addr
     memset((char *) &proxy_addr, 0, sizeof(proxy_addr));
@@ -79,27 +80,30 @@ int main(int argc, char* argv[]) {
         // get url from http request
         memcpy(tmp, buffer, BUFF_SIZE);
         token = strtok(tmp, " ");
-        url = strtok(NULL, " ");
+        token = strtok(NULL, " ");
+        n = strlen(token);
+        url = (char *) malloc(sizeof(char) * n);
+        memmove(url, token, n-1);
 
-        
         // connet to server
-        server = gethostbyname(url);
+        server = gethostbyname(url+7);
         if (server == NULL) {
             n = write(cli_sock, NOT_FOUND, 27);
             if (n < 0) {
                 error("ERROR write client socket");
             }
+            error("ERROR gethostbyname");
         }
         memset((char *) &serv_addr, 0, sizeof(serv_addr));
         serv_addr.sin_family = AF_INET;
         memcpy((char *) &serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
-        serv_addr.sin_port = 80;
+        serv_addr.sin_port = htons(80);
 
         n = connect(proxy_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
         if (n < 0) {
             error("ERROR connect server");
         }
-        
+
         n = write(proxy_sock, buffer, BUFF_SIZE);
         if (n < 0) {
             error("ERROR write proxy");
