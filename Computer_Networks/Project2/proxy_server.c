@@ -87,16 +87,24 @@ int main(int argc, char* argv[])
         {
             error("ERROR read client socket");
         }
+        
+        printf("\nCLIENT BUFFER ===================\n");
+        printf("%s\n", buffer);
+        printf("=================================\n\n");
 
         // get url from http request
         memcpy(tmp, buffer, BUFF_SIZE);
         token1 = strtok(tmp, " ");
         token1 = strtok(NULL, " ");
-        token2 = strtok(token1, "/");
+        token2 = strtok(token1, "//");
         token2 = strtok(NULL, "/");
         n = strlen(token2);
         url = (char *) malloc(sizeof(char) * n);
         memcpy(url, token2, n);
+        
+        printf("URL =============================\n");
+        printf("%s\n", url);
+        printf("=================================\n\n");
 
         // connet to server
         server = gethostbyname(url);
@@ -126,11 +134,24 @@ int main(int argc, char* argv[])
             error("ERROR connect server");
         }
 
+        memcpy(tmp, buffer, BUFF_SIZE);
+        token1 = strtok(tmp, "\r\n");
+        token2 = strtok(NULL, "\r\n");
+
+        // memset(buffer, 0, BUFF_SIZE);
+        // sprintf(buffer, "%s\r\n%s\r\nConnection: close\r\n\r\n", token1, token2);
+        
+        printf("SEND BUFFER =======================\n");
+        printf("%s\n", buffer);
+        printf("=================================\n\n");
+
         n = write(serv_sock, buffer, BUFF_SIZE);
         if (n < 0)
         {
             error("ERROR write proxy");
         }
+        
+        memset(buffer, 0, BUFF_SIZE);
         
         n = read(serv_sock, buffer, BUFF_SIZE);
         if (n < 0)
@@ -143,12 +164,13 @@ int main(int argc, char* argv[])
         {
             error("ERROR wrtie client socket");
         }
-
+        
         memset(buffer, 0, BUFF_SIZE);
-        close(cli_sock);
-        close(proxy_sock);
+        free(url);
         close(serv_sock);
+        close(cli_sock);
     }
+    close(proxy_sock);
 
     return 0;
 }
