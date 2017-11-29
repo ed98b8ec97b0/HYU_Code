@@ -9,7 +9,7 @@
 #include <netdb.h> 
 
 #define BACKLOG 5
-#define BUFF_SIZE 5120
+#define BUFF_SIZE 1024
 #define CASH_SIZE 10
 #define NOT_FOUND "HTTP/1.1 404 NOT Found\r\n\r\n"
 
