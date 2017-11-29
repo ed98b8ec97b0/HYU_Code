@@ -160,6 +160,10 @@ int main(int argc, char* argv[])
             error("ERROR read proxy");
         }
 
+        printf("RECV BUFFER =======================\n");
+        printf("%s\n", buffer);
+        printf("=================================\n\n");
+
         m = write(cli_sock, buffer, n);
         if (m < 0)
         {
