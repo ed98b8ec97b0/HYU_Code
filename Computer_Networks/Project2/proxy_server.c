@@ -9,9 +9,11 @@
 #include <netdb.h> 
 
 #define BACKLOG 5
-#define BUFF_SIZE 512
+#define BUFF_SIZE 1023
 #define CASH_SIZE 10
 #define NOT_FOUND "HTTP/1.1 404 NOT Found\r\n\r\n"
+#define URL_SIZE 300
+#define PATH_SIZE 300
 
 void error(char *msg)
 {
@@ -24,10 +26,9 @@ int main(int argc, char* argv[])
     int proxy_sock, cli_sock, serv_sock;
     int port_no;
     int n, m;
-    char buffer[BUFF_SIZE], tmp[BUFF_SIZE];
-    char* token1 = NULL;
-    char* token2 = NULL;
-    char* url;
+    char buffer[BUFF_SIZE], url[URL_SIZE], path[PATH_SIZE];
+    char token1[URL_SIZE], token2[URL_SIZE], token3[10];
+    char* temp = NULL;
     struct sockaddr_in proxy_addr, serv_addr, cli_addr;
     struct hostent *server;
     socklen_t clilen;
@@ -37,6 +38,11 @@ int main(int argc, char* argv[])
         fprintf(stderr, "ERROR argument");
         exit(1);
     }
+
+    printf("Proxy server\n");
+    printf("Computer Network Project2\n");
+    printf("Hanyang University ERICA Campus\n");
+    printf("2015038568 장호연\n\n");
 
     // proxy server socket open
     proxy_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -52,6 +58,9 @@ int main(int argc, char* argv[])
     proxy_addr.sin_family = AF_INET;
     proxy_addr.sin_addr.s_addr = INADDR_ANY;
     proxy_addr.sin_port = htons(port_no);
+
+    int opt = 1;
+    setsockopt(proxy_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(int));
 
     // binding proxy socket
     n = bind(proxy_sock, (struct sockaddr *) & proxy_addr, sizeof(proxy_addr));
@@ -87,39 +96,67 @@ int main(int argc, char* argv[])
         {
             error("ERROR read client socket");
         }
-        
-        printf("\nCLIENT BUFFER ===================\n");
-        printf("%s\n", buffer);
-        printf("=================================\n\n");
 
-        // get url from http request
-        memcpy(tmp, buffer, BUFF_SIZE);
-        token1 = strtok(tmp, " ");
-        token1 = strtok(NULL, " ");
-        token2 = strtok(token1, "//");
-        token2 = strtok(NULL, "/");
-        n = strlen(token2);
-        url = (char *) malloc(sizeof(char) * n);
-        memcpy(url, token2, n);
-        
-        printf("URL =============================\n");
-        printf("%s\n", url);
-        printf("=================================\n\n");
+        // split first headline
+        n = 0;
+        sscanf(buffer, "%s %s %s", token1, token2, token3);
+        strcpy(token1, token2);
+        for (int i = 7; i < strlen(token2); i++)
+        {
+            if (token2[i] == ':')
+            {
+                n = 1;
+                break;
+            }
+        }
 
+        // split URL + path and port
+        temp = strtok(token2, "//"); // temp = http://
+        if (n == 0)
+        {
+            port_no = 80;
+            temp = strtok(NULL, "/"); // temp = URL + path
+        }
+        else
+        {
+            temp = strtok(NULL, ":"); // temp = URL + path
+        }
+
+        if (n == 1)
+        {
+            temp = strtok(NULL, "/");
+            port_no = atoi(temp);
+        }
+        sprintf(url, "%s", temp);
+        printf("URL = %s\n", url);
+        
         // connet to server
         server = gethostbyname(url);
         if (server == NULL)
         {
             n = write(cli_sock, NOT_FOUND, 27);
-            if (n < 0) {
+            if (n < 0)
+            {
                 error("ERROR write client socket");
             }
             error("ERROR gethostbyname");
         }
+
+        // get path
+        strcat(token1, "^]");
+        temp = strtok(token1, "//");
+        temp = strtok(NULL, "/");
+        if (temp != NULL)
+        {
+            temp = strtok(NULL, "^]");
+        }
+        sprintf(path, "%s", temp);
+        printf("PATH = %s\nPORT = %d\n", path, port_no);
+
         memset((char *) &serv_addr, 0, sizeof(serv_addr));
         serv_addr.sin_family = AF_INET;
         memcpy((char *) &serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
-        serv_addr.sin_port = htons(80);
+        serv_addr.sin_port = htons(port_no);
 
         // proxy server socket open
         serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -134,16 +171,17 @@ int main(int argc, char* argv[])
             error("ERROR connect server");
         }
 
-        memcpy(tmp, buffer, BUFF_SIZE);
-        token1 = strtok(tmp, "\r\n");
-        token2 = strtok(NULL, "\r\n");
-
-        // memset(buffer, 0, BUFF_SIZE);
-        // sprintf(buffer, "%s\r\n%s\r\nConnection: close\r\n\r\n", token1, token2);
+        memset(buffer, 0, BUFF_SIZE);
+        if (temp != NULL)
+        {
+            sprintf(buffer, "GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n", path, token3, url);
+        }
+        else
+        {
+            sprintf(buffer, "GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n", token3, url);
+        }
         
-        printf("SEND BUFFER =======================\n");
-        printf("%s\n", buffer);
-        printf("=================================\n\n");
+        printf("\n%s\n", buffer);
 
         n = write(serv_sock, buffer, BUFF_SIZE);
         if (n < 0)
@@ -152,25 +190,27 @@ int main(int argc, char* argv[])
         }
         
         memset(buffer, 0, BUFF_SIZE);
+
+        do
+        {
+            n = recv(serv_sock, buffer, BUFF_SIZE, 0);
+            if (n < 0)
+            {
+                error("ERROR read proxy");
+            }
+
+            if (n > 0)
+            {
+                m = send(cli_sock, buffer, n, 0);
+                if (m < 0)
+                {
+                    error("ERROR wrtie client socket");
+                }
+            }
+        } while (n > 0);
         
-        n = read(serv_sock, buffer, BUFF_SIZE);
-        if (n < 0)
-        {
-            error("ERROR read proxy");
-        }
-
-        printf("RECV BUFFER =======================\n");
-        printf("%s\n", buffer);
-        printf("=================================\n\n");
-
-        m = write(cli_sock, buffer, n);
-        if (m < 0)
-        {
-            error("ERROR wrtie client socket");
-        }
         
         memset(buffer, 0, BUFF_SIZE);
-        free(url);
         close(serv_sock);
         close(cli_sock);
     }
