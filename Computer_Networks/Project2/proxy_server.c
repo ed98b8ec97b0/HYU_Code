@@ -98,7 +98,6 @@ int main(int argc, char* argv[])
         token1 = strtok(NULL, " ");
         token2 = strtok(token1, "//");
         token2 = strtok(NULL, "/");
-        printf("strtok OK\n");
         n = strlen(token2);
         url = (char *) malloc(sizeof(char) * n);
         memcpy(url, token2, n);
