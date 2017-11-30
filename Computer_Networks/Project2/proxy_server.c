@@ -1,19 +1,5 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <netdb.h> 
-
-#define BACKLOG 5
-#define BUFF_SIZE 512
-#define CASH_SIZE 10
-#define NOT_FOUND "HTTP/1.1 404 NOT Found\r\n\r\n"
-#define URL_SIZE 300
-#define PATH_SIZE 300
+#include "header.h"
+#include "lru.h"
 
 void error(char *msg)
 {
@@ -32,6 +18,9 @@ int main(int argc, char* argv[])
     struct sockaddr_in proxy_addr, serv_addr, cli_addr;
     struct hostent *server;
     socklen_t clilen;
+    queue *cache;
+    cache = (queue *)malloc(sizeof(queue));
+    object *obje, *temp2, *first;
 
     if (argc < 2)
     {
@@ -140,6 +129,7 @@ int main(int argc, char* argv[])
             }
             error("ERROR gethostbyname");
         }
+        printf("\n\nConnet to %s\n", url);
 
         // get path
         strcat(token1, "^]");
@@ -150,23 +140,31 @@ int main(int argc, char* argv[])
             temp = strtok(NULL, "^]");
         }
         sprintf(path, "%s", temp);
+        printf("url: %s\npath: %s\nCache: ", url, path);
+        
+        // print_cache(cache);
 
-        flag = check(url, path);
+        flag = 0;
+        flag = check(cache, url, path);
         if (flag == 1)
         {
-            object* obje = hit(url, path);
-
-            for (int i = 0; i < obje->count; i++)
+            printf("Hit\n");
+            obje = hit(cache, url, path);
+            send(cli_sock, obje->buffer, obje->length, 0);
+            while(obje->next != NULL)
             {
-                n = send(cli_sock, obje->buffer, obje->length, 0);
-                if (n < 0)
+                obje = obje->next;
+                if (obje->next->position == 0)
                 {
-                    error("ERROR write client socket");
+                    break;
                 }
+                send(cli_sock, obje->buffer, obje->length, 0);
             }
+            
         }
         else
         {
+            printf("Miss\n");
             memset((char *) &serv_addr, 0, sizeof(serv_addr));
             serv_addr.sin_family = AF_INET;
             memcpy((char *) &serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
@@ -195,7 +193,7 @@ int main(int argc, char* argv[])
             {
                 sprintf(buffer, "GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n", token3, url);
             }
-            
+
             n = write(serv_sock, buffer, BUFF_SIZE);
             if (n < 0)
             {
@@ -206,12 +204,6 @@ int main(int argc, char* argv[])
 
             // cache first node;
             flag = 0;
-            object* front = (object*) malloc(sizeof(object));
-            front->url = url;
-            front->path = path;
-            front->count = 1;
-            front->next = NULL;
-            object* header = front;
             // send request and receive response.
             do
             {   
@@ -220,25 +212,31 @@ int main(int argc, char* argv[])
                 {
                     error("ERROR read proxy");
                 }
-                if (flag == 0)
-                {
-                    front->length = n;
-                    front->buffer = buffer;
-                }
-                else
-                {
-                    object* temp = (object*) malloc(sizeof(object));
-                    temp->url = url;
-                    temp->path = path;
-                    temp->length = n;
-                    front->count++;
-                    header->next = temp;
-                    header = header->next;
-                }
-                
 
                 if (n > 0)
                 {
+                    // consturct object;
+                    obje = (object *)malloc(sizeof(object));
+                    memcpy(obje->url, url, URL_SIZE);
+                    memcpy(obje->path, path, PATH_SIZE);
+                    obje->length = n;
+                    obje->position = flag;
+                    memcpy(obje->buffer, buffer, BUFF_SIZE);
+                    obje->next = NULL;
+
+                    if (flag == 0)
+                    {
+                        
+                        temp2 = obje;
+                        first = obje;
+                    }
+                    else
+                    {
+                        temp2->next = obje;
+                        temp2 = obje;
+                    }
+                    first->full_length += n;
+
                     m = send(cli_sock, buffer, n, 0);
                     if (m < 0)
                     {
@@ -249,9 +247,12 @@ int main(int argc, char* argv[])
                 flag = 1;
             } while (n > 0);
 
-            if (count <= 10)
+            printf("Length: %d\n", first->full_length);
+
+            if (first->full_length < OBJE_SIZE)
             {
-                miss(first);
+                printf("add cache\n");
+                miss(cache, first);
             }
         }
 
