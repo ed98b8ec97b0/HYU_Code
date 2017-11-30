@@ -7,7 +7,8 @@ typedef struct object
     // object
     char* url;
     char* path;
-    int position;
+    int length;
+    int count;
     char* buffer;
 
     // queue
