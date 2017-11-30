@@ -151,13 +151,10 @@ int main(int argc, char* argv[])
             printf("Hit\n");
             obje = hit(cache, url, path);
             send(cli_sock, obje->buffer, obje->length, 0);
-            while(obje->next != NULL)
+            while (obje->position != 2)
             {
                 obje = obje->next;
-                if (obje->next->position == 0)
-                {
-                    break;
-                }
+                printf("obje->length = %d\n", obje->length);
                 send(cli_sock, obje->buffer, obje->length, 0);
             }
             
@@ -213,7 +210,7 @@ int main(int argc, char* argv[])
                     error("ERROR read proxy");
                 }
 
-                if (n > 0)
+                if (n != 0)
                 {
                     // consturct object;
                     obje = (object *)malloc(sizeof(object));
@@ -223,6 +220,7 @@ int main(int argc, char* argv[])
                     obje->position = flag;
                     memcpy(obje->buffer, buffer, BUFF_SIZE);
                     obje->next = NULL;
+                    printf("obje->length = %d\n", obje->length);
 
                     if (flag == 0)
                     {
@@ -247,7 +245,8 @@ int main(int argc, char* argv[])
                 flag = 1;
             } while (n > 0);
 
-            printf("Length: %d\n", first->full_length);
+            obje->position = 2;
+            printf("\nLength: %d\n", first->full_length);
 
             if (first->full_length < OBJE_SIZE)
             {
