@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 {
     int proxy_sock, cli_sock, serv_sock;
     int port_no;
-    int n, m;
+    int n, m, flag;
     char buffer[BUFF_SIZE], url[URL_SIZE], path[PATH_SIZE];
     char token1[URL_SIZE], token2[URL_SIZE], token3[10];
     char* temp = NULL;
@@ -151,61 +151,111 @@ int main(int argc, char* argv[])
         }
         sprintf(path, "%s", temp);
 
-        memset((char *) &serv_addr, 0, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        memcpy((char *) &serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
-        serv_addr.sin_port = htons(port_no);
-
-        // proxy server socket open
-        serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (serv_sock < 0)
+        flag = check(url, path);
+        if (flag == 1)
         {
-            error("ERROR proxy socket");
-        }
+            object* obje = hit(url, path);
 
-        n = connect(serv_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-        if (n < 0)
-        {
-            error("ERROR connect server");
-        }
-
-        // write buffer to using receive http response from server.
-        memset(buffer, 0, BUFF_SIZE);
-        if (temp != NULL)
-        {
-            sprintf(buffer, "GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n", path, token3, url);
+            for (int i = 0; i < obje->count; i++)
+            {
+                n = send(cli_sock, obje->buffer, obje->length, 0);
+                if (n < 0)
+                {
+                    error("ERROR write client socket");
+                }
+            }
         }
         else
         {
-            sprintf(buffer, "GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n", token3, url);
-        }
-        
-        n = write(serv_sock, buffer, BUFF_SIZE);
-        if (n < 0)
-        {
-            error("ERROR write proxy");
-        }
-        
-        memset(buffer, 0, BUFF_SIZE);
+            memset((char *) &serv_addr, 0, sizeof(serv_addr));
+            serv_addr.sin_family = AF_INET;
+            memcpy((char *) &serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
+            serv_addr.sin_port = htons(port_no);
 
-        // send request and receive response.
-        do
-        {
-            n = recv(serv_sock, buffer, BUFF_SIZE, 0);
+            // proxy server socket open
+            serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+            if (serv_sock < 0)
+            {
+                error("ERROR proxy socket");
+            }
+
+            n = connect(serv_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
             if (n < 0)
             {
-                error("ERROR read proxy");
+                error("ERROR connect server");
             }
 
-            if (n > 0)
+            // write buffer to using receive http response from server.
+            memset(buffer, 0, BUFF_SIZE);
+            if (temp != NULL)
             {
-                m = send(cli_sock, buffer, n, 0);
-                if (m < 0)
-                {
-                    error("ERROR wrtie client socket");
-                }
+                sprintf(buffer, "GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n", path, token3, url);
             }
-        } while (n > 0);
+            else
+            {
+                sprintf(buffer, "GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n", token3, url);
+            }
+            
+            n = write(serv_sock, buffer, BUFF_SIZE);
+            if (n < 0)
+            {
+                error("ERROR write proxy");
+            }
+            
+            memset(buffer, 0, BUFF_SIZE);
+
+            // cache first node;
+            flag = 0;
+            object* front = (object*) malloc(sizeof(object));
+            front->url = url;
+            front->path = path;
+            front->count = 1;
+            front->next = NULL;
+            object* header = front;
+            // send request and receive response.
+            do
+            {   
+                n = recv(serv_sock, buffer, BUFF_SIZE, 0);
+                if (n < 0)
+                {
+                    error("ERROR read proxy");
+                }
+                if (flag == 0)
+                {
+                    front->length = n;
+                    front->buffer = buffer;
+                }
+                else
+                {
+                    object* temp = (object*) malloc(sizeof(object));
+                    temp->url = url;
+                    temp->path = path;
+                    temp->length = n;
+                    front->count++;
+                    header->next = temp;
+                    header = header->next;
+                }
+                
+
+                if (n > 0)
+                {
+                    m = send(cli_sock, buffer, n, 0);
+                    if (m < 0)
+                    {
+                        error("ERROR write client socket");
+                    }
+                }
+
+                flag = 1;
+            } while (n > 0);
+
+            if (count <= 10)
+            {
+                miss(first);
+            }
+        }
+
+        
         
         memset(buffer, 0, BUFF_SIZE);
         close(serv_sock);
