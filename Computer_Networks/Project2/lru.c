@@ -117,39 +117,17 @@ void miss(queue *cache, object *first)
             cache->size -= cache->front->full_length;
             
             iter = cache->front;
-            while (iter->position != 0)
+            for (int i = 1; i <= iter->size; i++, iter = iter->next)
             {
                 temp = iter;
                 iter = iter->next;
+                free(temp->url);
+                free(temp->path);
+                free(temp->buffer);
+                temp->next = NULL;
                 free(temp);
             }
             cache->front = iter;
         }
     }
-}
-
-void print_cache(queue *cache)
-{
-    object *iter;
-
-    printf("\n[");
-
-    if (cache->size == 0)
-    {
-        printf("(null)");
-    }
-    else
-    {
-        iter = cache->front;
-        while(iter->next != NULL)
-        {
-            if (iter->position == 0)
-            {
-                printf("-(%s/%s)-", iter->url, iter->path);
-            }   
-            iter = iter->next;
-        }
-    }
-
-    printf("]\n");
 }
