@@ -9,7 +9,7 @@
 #include <netdb.h> 
 
 #define BACKLOG 5
-#define BUFF_SIZE 1023
+#define BUFF_SIZE 5120
 #define CASH_SIZE 10
 #define NOT_FOUND "HTTP/1.1 404 NOT Found\r\n\r\n"
 #define URL_SIZE 300
@@ -128,7 +128,6 @@ int main(int argc, char* argv[])
             port_no = atoi(temp);
         }
         sprintf(url, "%s", temp);
-        printf("URL = %s\n", url);
         
         // connet to server
         server = gethostbyname(url);
@@ -151,7 +150,6 @@ int main(int argc, char* argv[])
             temp = strtok(NULL, "^]");
         }
         sprintf(path, "%s", temp);
-        printf("PATH = %s\nPORT = %d\n", path, port_no);
 
         memset((char *) &serv_addr, 0, sizeof(serv_addr));
         serv_addr.sin_family = AF_INET;
@@ -171,6 +169,7 @@ int main(int argc, char* argv[])
             error("ERROR connect server");
         }
 
+        // write buffer to using receive http response from server.
         memset(buffer, 0, BUFF_SIZE);
         if (temp != NULL)
         {
@@ -181,8 +180,6 @@ int main(int argc, char* argv[])
             sprintf(buffer, "GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n", token3, url);
         }
         
-        printf("\n%s\n", buffer);
-
         n = write(serv_sock, buffer, BUFF_SIZE);
         if (n < 0)
         {
@@ -191,6 +188,7 @@ int main(int argc, char* argv[])
         
         memset(buffer, 0, BUFF_SIZE);
 
+        // send request and receive response.
         do
         {
             n = recv(serv_sock, buffer, BUFF_SIZE, 0);
@@ -208,7 +206,6 @@ int main(int argc, char* argv[])
                 }
             }
         } while (n > 0);
-        
         
         memset(buffer, 0, BUFF_SIZE);
         close(serv_sock);
