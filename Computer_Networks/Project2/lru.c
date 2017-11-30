@@ -57,13 +57,13 @@ void header_move(int n)
     }
 }
 
-void miss(object* obje, int n)
+void miss(object* obje)
 {
     object* prev = cache->header;
     object* temp1 = prev->next;
     object* temp2 = temp1->next;
 
-    for(int i = 0; i < n; i++)
+    for(int i = 0; i < obje->count; i++)
     {
         free(temp1);
         temp1 = temp2;
@@ -72,4 +72,19 @@ void miss(object* obje, int n)
 
     prev->next = obje;
     header_move(n);
+}
+
+void c_free(object* first)
+{
+    object* temp1 = first;
+    object* temp2 = first->next;
+    for (int i = 0; i < first->count; i++)
+    {
+        free(temp1);
+        temp1 = temp2;
+        if (temp1->next != NULL)
+        {
+            temp2 = temp1->next;
+        }
+    }
 }
