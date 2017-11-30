@@ -1,26 +1,28 @@
-#include <string.h>
-
-#define CASH_SIZE 6164480
+#include "header.h"
 
 typedef struct object
 {
     // object
-    char* url;
-    char* path;
+    char url[URL_SIZE];
+    char path[PATH_SIZE];
     int length;
-    int count;
-    char* buffer;
+    int full_length;
+    int position;
+    char buffer[BUFF_SIZE];
 
     // queue
-    object* next;
-} object
+    struct object* next;
+} object;
 
-typedef struct queue
+typedef struct
 {
     int size;
     object* front;
     object* back;
-    object* header;
-} queue
+} queue;
 
-queue* cache = (queue*)malloc(sizeof(queue));
+object *hit(queue *cache, char *url, char *path);
+int check(queue *cache, char *url, char *path);
+void header_move(queue *cache, int n);
+void miss(queue *cache, object *obje);
+void print_cache(queue *cache);
