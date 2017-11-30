@@ -3,12 +3,12 @@
 typedef struct object
 {
     // object
-    char *url;
-    char *path;
+    char url[URL_SIZE];
+    char path[PATH_SIZE];
     int length;
     int full_length;
     int size;
-    char *buffer;
+    char buffer[BUFF_SIZE];
 
     // queue
     struct object* next;

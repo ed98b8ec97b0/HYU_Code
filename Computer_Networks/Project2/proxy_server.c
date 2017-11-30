@@ -160,10 +160,7 @@ int main(int argc, char* argv[])
                 m = obje->size;
                 for (int i = 0; i < m; i++)
                 {
-                    n = obje->length;
-                    memset(buffer, 0, BUFF_SIZE);
-                    memcpy(buffer, obje->buffer, n);
-                    send(cli_sock, buffer, n, 0);
+                    send(cli_sock, obje->buffer, obje->length, 0);
                     if (i < m)
                     {
                         obje = obje->next;
@@ -224,9 +221,9 @@ int main(int argc, char* argv[])
                     {
                         // consturct object;
                         obje = (object *)malloc(sizeof(object));
-                        obje->url = (char *)malloc(sizeof(char) * URL_SIZE);
-                        obje->path = (char *)malloc(sizeof(char) * PATH_SIZE);
-                        obje->buffer = (char *)malloc(sizeof(char) * BUFF_SIZE);
+                        memset(obje->url, 0, URL_SIZE);
+                        memset(obje->path, 0, PATH_SIZE);
+                        memset(obje->buffer, 0, BUFF_SIZE);
                         memcpy(obje->url, url, URL_SIZE);
                         memcpy(obje->path, path, PATH_SIZE);
                         memcpy(obje->buffer, buffer, BUFF_SIZE);
