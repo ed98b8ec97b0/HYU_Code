@@ -149,6 +149,9 @@ int main(int argc, char* argv[])
             if (temp != NULL)
             {
                 temp = strtok(NULL, "^]");
+            }
+            if (temp != NULL)
+            {
                 sprintf(path, "%s", temp);
             }
             printf("url: %s\npath: %s\n", url, path);
