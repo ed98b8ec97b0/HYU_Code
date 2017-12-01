@@ -20,9 +20,7 @@ int main(int argc, char* argv[])
     buffer = (char *)malloc(sizeof(char) * BUFF_SIZE);
     url = (char *)malloc(sizeof(char) * URL_SIZE);
     path = (char *)malloc(sizeof(char) * PATH_SIZE);
-    char *token1, *token2, token3[10];
-    token1 = (char *)malloc(sizeof(char) * URL_SIZE);
-    token2 = (char *)malloc(sizeof(char) * URL_SIZE);
+    char token1[URL_SIZE], token2[URL_SIZE], token3[10];
     char* temp = NULL;
     struct sockaddr_in proxy_addr, serv_addr, cli_addr;
     struct hostent *server;
