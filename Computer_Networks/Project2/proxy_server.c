@@ -102,17 +102,20 @@ int main(int argc, char* argv[])
             strcpy(token1, token2);
             for (int i = 7; i < strlen(token2); i++)
             {
-                printf("(token2[i] = %c, n = %d\n", token2[i], n);
+                printf("%c", token2[i]);
                 if (token2[i] == ':')
                 {
+                    printf("\nflag on!\n");
                     n = 1;
                     continue;
                 }
                 if (isdigit(token2[i]) == 0)
                 {
+                    printf("\nflag off!\n");
                     n = 0;
                 }
             }
+            printf("\n");
 
             // split URL + path and port
             temp = strtok(token2, "//"); // temp = http://
