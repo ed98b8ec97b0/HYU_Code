@@ -127,6 +127,7 @@ int main(int argc, char* argv[])
                 port_no = atoi(temp);
             }
             sprintf(url, "%s", temp);
+            printf("url = %s\n", url);
             
             // connet to server
             server = gethostbyname(url);
