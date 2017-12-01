@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
                 }
 
                 n = write(serv_sock, buffer, BUFF_SIZE);
-                if (n < 0)
+                if ((n < 0) && (errno != EPIPE))
                 {
                     error("ERROR write proxy");
                 }
