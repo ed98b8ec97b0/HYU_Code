@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <ctype.h>
+#include <signal.h>
 
 #define BACKLOG 5
 #define BUFF_SIZE 512

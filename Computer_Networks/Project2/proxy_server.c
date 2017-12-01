@@ -3,13 +3,16 @@
 
 queue *cache;
 
-    void
-    error(char *msg)
+void error(char *msg)
 {
     perror(msg);
     exit(1);
 }
 
+void my_life_for_pipe()
+{
+    ;
+}
 
 int main(int argc, char* argv[])
 {
@@ -33,6 +36,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "ERROR argument");
         exit(1);
     }
+    signal(SIGPIPE, my_life_for_pipe);
 
     printf("Proxy server\n");
     printf("Computer Network Project2\n");
@@ -102,10 +106,8 @@ int main(int argc, char* argv[])
             strcpy(token1, token2);
             for (int i = 7; i < strlen(token2); i++)
             {
-                printf("%c", token2[i]);
                 if (token2[i] == ':')
                 {
-                    printf("\nflag on!\n");
                     m = 1;
                     continue;
                 }
