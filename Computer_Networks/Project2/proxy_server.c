@@ -79,7 +79,12 @@ int main(int argc, char* argv[])
     {
         print_queue();
         clilen = sizeof(cli_addr);
-
+        memset(token1, 0, URL_SIZE);
+        memset(token2, 0, URL_SIZE);
+        memset(token3, 0, 10);
+        memset(buffer, 0, BUFF_SIZE);
+        memset(url, 0, URL_SIZE);
+        memset(path, 0, PATH_SIZE);
         // accepting client socket
         cli_sock = accept(proxy_sock, (struct sockaddr *) &proxy_addr, &clilen);
         if (cli_sock < 0)
@@ -170,6 +175,7 @@ int main(int argc, char* argv[])
             }
             printf("url: %s\npath: %s\n", url, path);
             memset(token1, 0, URL_SIZE);
+            printf("token1 = %s\n", token1);
             strcpy(token1, url);
             strcat(token1, "/");
             strcat(token1, path);
@@ -184,7 +190,7 @@ int main(int argc, char* argv[])
                 while(pck != NULL)
                 {   
                     n = send(cli_sock, pck->buffer, pck->length, 0);
-                    if (n < 0)
+                    if ((n < 0) && (errno != EPIPE))
                     {
                         error("ERROR send in hit");
                     }
@@ -276,6 +282,7 @@ int main(int argc, char* argv[])
 
                 if (obje->length < OBJE_SIZE)
                 {
+                    printf("url = %s\n", obje->url);
                     printf("Add cache\n");
                     miss(obje);
                 }

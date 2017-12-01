@@ -136,11 +136,11 @@ void print_queue()
 {
     printf("\nCACHE SIZE = %d / 5242880\n", cache->size);
     
-    // object *iter = cache->front;
+    object *iter = cache->front;
 
-    // while (iter != NULL)
-    // {
-    //     printf("[%s, %d]\n", iter->url, iter->length);
-    //     iter = iter->next;
-    // }
+    while (iter != NULL)
+    {
+        printf("[%s, %d]\n", iter->url, iter->length);
+        iter = iter->next;
+    }
 }
