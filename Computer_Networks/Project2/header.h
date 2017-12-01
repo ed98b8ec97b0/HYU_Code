@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <ctype.h>
 #include <signal.h>
+#include <errno.h>
 
 #define BACKLOG 5
 #define BUFF_SIZE 512

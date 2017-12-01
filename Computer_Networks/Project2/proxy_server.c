@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
                         }
 
                         m = send(cli_sock, buffer, n, 0);
-                        if (m < 0)
+                        if ((m < 0) && (errno != EPIPE))
                         {
                             error("ERROR write client socket");
                         }
