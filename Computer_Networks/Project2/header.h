@@ -12,7 +12,7 @@
 #include <errno.h>
 
 #define BACKLOG 5
-#define BUFF_SIZE 512
+#define BUFF_SIZE 4096
 #define HTTP_PROT "HTTP://"
 #define HTTP_VER0 "HTTP/1.0"
 #define HTTP_VER1 "HTTP/1.1"

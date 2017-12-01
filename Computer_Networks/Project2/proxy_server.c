@@ -36,12 +36,12 @@ int main(int argc, char* argv[])
         fprintf(stderr, "ERROR argument");
         exit(1);
     }
-    signal(SIGPIPE, my_life_for_pipe);
+    // signal(SIGPIPE, my_life_for_pipe);
 
-    printf("Proxy server\n");
-    printf("Computer Network Project2\n");
-    printf("Hanyang University ERICA Campus\n");
-    printf("2015038568 장호연\n\n");
+    // printf("Proxy server\n");
+    // printf("Computer Network Project2\n");
+    // printf("Hanyang University ERICA Campus\n");
+    // printf("2015038568 장호연\n\n");
 
     // proxy server socket open
     proxy_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
     while(1)
     {
-        print_queue();
+        // print_queue();
         clilen = sizeof(cli_addr);
         memset(token1, 0, URL_SIZE);
         memset(token2, 0, URL_SIZE);
@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
         n = 0;
         sscanf(buffer, "%s %s %s", token1, token2, token3);
 
+
         if (((strncmp(token1, "GET", 3) == 0)) && ((strncmp(token3, "HTTP/1.1", 8) == 0) || (strncmp(token3, "HTTP/1.0", 8) == 0)) && (strncmp(token2, "http://", 7) == 0))
         {
             strcpy(token1, token2);
@@ -126,7 +127,7 @@ int main(int argc, char* argv[])
                     n = 1;
                 }
             }
-            printf("\n");
+            // printf("\n");
 
             // split URL + path and port
             temp = strtok(token2, "//"); // temp = http://
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
                 }
                 error("ERROR gethostbyname");
             }
-            printf("\n\nConnet to %s\n", url);
+            // printf("\n\nConnect to %s\n", url);
 
             // get path
             strcpy(token2, token1);
@@ -173,9 +174,9 @@ int main(int argc, char* argv[])
             {
                 sprintf(path, "%s", temp);
             }
-            printf("url: %s\npath: %s\n", url, path);
+            // printf("url: %s\npath: %s\n", url, path);
             memset(token1, 0, URL_SIZE);
-            printf("token1 = %s\n", token1);
+            // printf("token1 = %s\n", token1);
             strcpy(token1, url);
             strcat(token1, "/");
             strcat(token1, path);
@@ -184,7 +185,7 @@ int main(int argc, char* argv[])
             flag = check(token1);
             if (flag == 1)
             {
-                printf("Cache: Hit\n");
+                // printf("Cache: Hit\n");
                 object* obje = hit(token1);
                 packet* pck = obje->data;
                 while(pck != NULL)
@@ -199,7 +200,7 @@ int main(int argc, char* argv[])
             }
             else
             {
-                printf("Cache: Miss\n");
+                // printf("Cache: Miss\n");
                 memset((char *) &serv_addr, 0, sizeof(serv_addr));
                 serv_addr.sin_family = AF_INET;
                 memcpy((char *) &serv_addr.sin_addr.s_addr, (char *) server->h_addr, server->h_length);
@@ -282,8 +283,7 @@ int main(int argc, char* argv[])
 
                 if (obje->length < OBJE_SIZE)
                 {
-                    printf("url = %s\n", obje->url);
-                    printf("Add cache\n");
+                    // printf("Add cache\n");
                     miss(obje);
                 }
             }
