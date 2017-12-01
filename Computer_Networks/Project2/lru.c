@@ -111,15 +111,15 @@ void miss(object *obje)
             {
                 cache->size -= cache->front->length;
 
-                packet *pck = obje->data;
+                // packet *pck = obje->data;
                 packet *temp;
-                while (pck != NULL)
-                {
-                    temp = pck;
-                    pck = pck->next;
-                    temp->next = NULL;
-                    free(temp);
-                }
+                // while (pck != NULL)
+                // {
+                //     temp = pck;
+                //     pck = pck->next;
+                //     temp->next = NULL;
+                //     free(temp);
+                // }
 
                 object *temp2 = cache->front;
                 temp2->data = NULL;
