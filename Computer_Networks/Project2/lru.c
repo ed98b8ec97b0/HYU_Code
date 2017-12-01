@@ -41,7 +41,7 @@ object* hit(char* url)
         obje = obje->next;
         flag = 1;
     }
-    if (flag == 0)
+    if (flag == 0) // obje with url is cache->front
     {
         cache->front = obje->next;
         cache->back->next = obje;
