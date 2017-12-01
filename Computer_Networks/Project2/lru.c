@@ -131,12 +131,13 @@ void miss(object *obje)
 
 void print_queue()
 {
-    object *iter = cache->front;
-
     printf("\nCACHE SIZE = %d / 5242880\n", cache->size);
-    while (iter != NULL)
-    {
-        printf("[%s, %d]\n", iter->url, iter->length);
-        iter = iter->next;
-    }
+    
+    // object *iter = cache->front;
+
+    // while (iter != NULL)
+    // {
+    //     printf("[%s, %d]\n", iter->url, iter->length);
+    //     iter = iter->next;
+    // }
 }
