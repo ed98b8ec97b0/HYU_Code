@@ -156,12 +156,13 @@ int main(int argc, char* argv[])
             }
             printf("ok\n");
             sprintf(path, "%s", temp);
-            printf("url: %s\npath: %s\n", url, path);
-            
+            // printf("url: %s\npath: %s\n", url, path);
+            printf("ok\n");
             memset(token1, 0, URL_SIZE);
             strcpy(token1, url);
             strcat(token1, "/");
             strcat(token1, path);
+            printf("ok\n");
 
             flag = 0;
             flag = check(token1);
