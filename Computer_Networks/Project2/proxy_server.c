@@ -102,6 +102,7 @@ int main(int argc, char* argv[])
             strcpy(token1, token2);
             for (int i = 7; i < strlen(token2); i++)
             {
+                printf("(token2[i] = %c, n = %d\n", token2[i], n);
                 if (token2[i] == ':')
                 {
                     n = 1;
