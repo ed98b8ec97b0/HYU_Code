@@ -143,26 +143,19 @@ int main(int argc, char* argv[])
 
             // get path
             strcpy(token2, token1);
-            printf("ok\n");
             strcat(token1, "^]");
-            printf("ok\n");
             temp = strtok(token1, "//");
-            printf("ok\n");
             temp = strtok(NULL, "/");
-            printf("ok\n");
             if (temp != NULL)
             {
                 temp = strtok(NULL, "^]");
+                sprintf(path, "%s", temp);
             }
-            printf("ok\n");
-            sprintf(path, "%s", temp);
-            // printf("url: %s\npath: %s\n", url, path);
-            printf("ok\n");
+            printf("url: %s\npath: %s\n", url, path);
             memset(token1, 0, URL_SIZE);
             strcpy(token1, url);
             strcat(token1, "/");
             strcat(token1, path);
-            printf("ok\n");
 
             flag = 0;
             flag = check(token1);
