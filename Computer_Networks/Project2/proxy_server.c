@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
                 }
                 if (isdigit(token2[i]) == 0)
                 {
-                    printf("\nflag off!\n");
                     n = 0;
                 }
             }
