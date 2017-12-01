@@ -106,12 +106,17 @@ int main(int argc, char* argv[])
                 if (token2[i] == ':')
                 {
                     printf("\nflag on!\n");
-                    n = 1;
+                    m = 1;
                     continue;
                 }
-                if (isdigit(token2[i]) == 0)
+                if ((m == 1) && (isdigit(token2[i]) == 0))
                 {
-                    n = 0;
+                    m = 0;
+                    continue;
+                }
+                if ((m == 1) && (token2[i] == '/'))
+                {
+                    n = 1;
                 }
             }
             printf("\n");
@@ -134,7 +139,6 @@ int main(int argc, char* argv[])
                 port_no = atoi(temp);
             }
             sprintf(url, "%s", temp);
-            printf("url = %s\n", url);
             
             // connet to server
             server = gethostbyname(url);
