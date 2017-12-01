@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <ctype.h>
 
 #define BACKLOG 5
 #define BUFF_SIZE 512

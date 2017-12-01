@@ -105,7 +105,12 @@ int main(int argc, char* argv[])
                 if (token2[i] == ':')
                 {
                     n = 1;
-                    break;
+                    m = i;
+                }
+                if ((i > m) && !(isdigit(token2[i])))
+                {
+                    n = 0;
+                    m = i;
                 }
             }
 
