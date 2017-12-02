@@ -56,7 +56,7 @@ uint my_div(uint numer, uint denom, uint *rem)
         denom >>= 1;
     }
     quot += my_div(numer - denom, tmp, rem);
-    
+
     return quot;
 }
 
@@ -99,22 +99,54 @@ uint my_sub(uint op1, uint op2, uint n)
     return result;
 }
 
-// 모듈러 곱셈 연산
-uint my_mul(uint op1, uint op2, uint n)
+// 모듈러 제곱 연산
+uint my_exp(uint op1, uint op2, uint n)
 {
-    uint result = 0;
+    uint result = 1, cal = 1, rem = 0, tmp;
+    int i;
 
-    // 오버플로우 방지를 위한 모듈러 연산.
     op1 = my_mod(op1, n);
-    op2 = my_mod(op2, n);
 
-    // 매 반복마다 덧셈을 수행하여 오버플로우를 방지한다.
-    uint tmp = op2;
-    for (int i = 0; i < tmp; i++)
-    {
-        result += op1;
+    // i와 op2가 같을 때 까지 반복
+    while (i != op2)
+    {   
+        i = 1;
+        cal = op1;
+        // Square and multiply
+        while (i < op2)
+        {   
+            tmp = cal;
+            cal *= tmp;
+            cal = my_mod(cal, n);
+
+            if (i * 2 > op2)
+            {
+                break;
+            }
+            i *= 2;
+        }
+
+        // for loop에서 계산한 값을 result에 쌓음.
+        result *= cal;
         result = my_mod(result, n);
-    }
 
+        // op2 = 2^n + 1이라면 한번 더 곱하고 while문 탈출.
+        if ((op2 - i) == 1)
+        {
+            result *= op1;
+            break;
+        }
+
+        /*
+        i > op2, 다시 한번더 square and multiply를 작동.
+        이때, i를 다시 1/2시켜주고 그 뒤 op2-i를 이용해 재반복.
+        */
+        if (i != op2)
+        {
+            op2 -= i;
+        }   
+    }
+    
+    result = my_mod(result, n);
     return result;
 }
