@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "my_code.h"
 
@@ -28,6 +29,7 @@ uint my_div(uint numer, uint denom, uint *rem)
 {
     uint tmp = denom, overflow = 1;
     uint quot = 0, tmp_quot;
+    uint over = (my_pow(2, 31) - 1);
 
     while (1)
     {
@@ -67,7 +69,8 @@ uint my_div(uint numer, uint denom, uint *rem)
         {
             tmp_quot <<= 1;
             denom <<= 1;
-            overflow = denom << 1;
+            overflow = denom;
+            overflow <<= 1;
             if (overflow == 0)
             {
                 break;
@@ -81,7 +84,6 @@ uint my_div(uint numer, uint denom, uint *rem)
             tmp_quot >>= 1;
         }
 
-        // printf("numer = %u, denom = %u, rem = %u, quot = %u\n", numer, denom, *rem, quot);
         numer -= denom;
         denom = tmp;
         quot += tmp_quot;
@@ -274,6 +276,5 @@ uint reform(uint n, uint *d)
         }
     }
 
-    // printf("r = %u, d = %u\n", r, *d);
     return expo;   
 }

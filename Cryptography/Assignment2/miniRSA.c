@@ -101,7 +101,6 @@ bool IsPrime(uint testNum, uint repeat)
     uint a = 1, x, k, q = 0, b, tmp;
     uint seed = time(NULL);
     seed = time(NULL);
-
     k = reform(testNum - 1, &q);
 
     for (int i = 0; i < repeat; i++)
@@ -109,7 +108,6 @@ bool IsPrime(uint testNum, uint repeat)
         random = 0;
         a = 0;
         possible = FALSE;
-
         while (a < 2)
         {
             random = WELLRNG512a() * (testNum - 1);
@@ -140,6 +138,7 @@ bool IsPrime(uint testNum, uint repeat)
 
     return result;
 }
+
 /*
  * @brief       모듈러 역 값을 계산하는 함수.
  * @param       uint a      : 피연산자1.
@@ -149,9 +148,16 @@ bool IsPrime(uint testNum, uint repeat)
  */
 uint ModInv(uint a, uint m) {
     uint result;
-    uint r_gcd, b, n;
+    uint x, r_gcd, rem = 0;
 
+    // ax + my = 1;
+    // ax = 1 + my;
+    // x = (1 + my) / a
+    r_gcd = gcd(a, m);
+    x = my_div(r_gcd, a, &rem);
+    printf("gcd = %u, x = %u\n", r_gcd, x);
 
+    result = x;
 
     return result;
 }
@@ -167,31 +173,56 @@ uint ModInv(uint a, uint m) {
  * @todo      과제 안내 문서의 제한사항을 참고하여 작성한다.
  */
 void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n){
-    double r1, r2;
-    uint pi_n;
-    uint e_31 = my_pow(2, 31);
-
-    // n을 만들기 위한 p, q 만들기.
-    r1 = WELLRNG512a() * my_pow(2, 16);
-    r2 = WELLRNG512a() * my_pow(2, 16);
+    double r1 = 1, r2 = 1, r3 = 1;
+    bool check = TRUE;
+    uint pi_n, rem1, rem2;
+    uint e_32 = my_pow(2, 32), e_16 = my_pow(2, 16), e_31 = my_pow(2, 31);
 
     // n 만들기.
-    do
+rmaking:
+    *p = 0;
+    *q = 0;
+    r1 = 0;
+    r2 = 0;
+
+    // 0보다 큰 r1과 r2 만들기.
+    r1 = WELLRNG512a() * (e_32 - 1);
+    r2 = WELLRNG512a() * (e_32 - 1);
+
+    *p = (uint) r1;
+    *q = (uint) r2;
+
+    my_div(*p, 2, &rem1);
+    my_div(*q, 2, &rem2);
+
+    printf("p = %u, q= %u\n", *p, *q);
+
+    // 검증단계.
+    if ((rem1 == 0) || (rem2 == 0))
     {
-        *p = (uint) r1;
-        *q = (uint) r2;
-    } while ((IsPrime(*p, 100) == TRUE) && (IsPrime(*q, 100) == TRUE) && (*p * *q >= e_31));
+        goto rmaking;
+    }
+    if ((IsPrime(*p, 10) == FALSE) || (IsPrime(*q, 10) == FALSE))
+    {
+        goto rmaking;
+    }
     *n = *p + *q;
-    pi_n = (*p - 1) * (*q - 1);
-
-    // 개인키 공개키 만들기.
+    if ((*n >= e_32) || (*n < e_31))
+    {
+        goto rmaking;
+    }
+    
+    // 공개키 만들기.
     do
     {
-        *e = (uint) rand();
-        *e = my_mod(*e, pi_n);
-    } while((gcd(*e, pi_n) != 1));
+        pi_n = (*p - 1) * (*q - 1);
+        r3 = 1;
+        r3 = WELLRNG512a() * pi_n;
+        *e = (uint) r3;
+    } while((r3 < 2) || (gcd(*e, pi_n) != 1));
 
-    *d = ModInv(*e, *n);
+    // 개인키 만들기.
+    *d = ModInv(*e, pi_n);
 }
 
 /*
