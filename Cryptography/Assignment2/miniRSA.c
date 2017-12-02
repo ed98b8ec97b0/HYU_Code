@@ -12,6 +12,9 @@
 #include <time.h>
 #include "miniRSA.h"
 
+// +, -, *, /, % 연산 구현 헤더
+#include "op.h"
+
 uint p, q, e, d, n;
 
 /*
@@ -23,8 +26,21 @@ uint p, q, e, d, n;
  * @return    uint result : 피연산자의 덧셈에 대한 모듈러 연산 값. (a op b) mod n
  * @todo      모듈러 값과 오버플로우 상황을 고려하여 작성한다.
  */
+
 uint ModAdd(uint a, uint b, byte op, uint n) {
-    return result
+    uint result = 0; 
+    
+    switch (op)
+    {
+        case '+':
+            result = my_add(a, b, n);
+            break;
+        case '-':
+            result = my_sub(a, b, n);
+            break;
+    }
+
+    return result;
 }
 
 /*
@@ -36,7 +52,11 @@ uint ModAdd(uint a, uint b, byte op, uint n) {
  * @todo       모듈러 값과 오버플로우 상황을 고려하여 작성한다.
  */
 uint ModMul(uint x, uint y, uint n) {
-    return result
+    uint result;
+
+    result = my_mul(x, y, n);
+
+    return result;
 }
 
 /*
@@ -49,7 +69,14 @@ uint ModMul(uint x, uint y, uint n) {
                'square and multiply' 알고리즘을 사용하여 작성한다.
  */
 uint ModPow(uint base, uint exp, uint n) {
-    return result
+    uint result;
+
+    for (int i = 0; i < exp; i++)
+    {
+        result = my_mul(base, base, n);
+    }
+
+    return result;
 }
 
 /*
@@ -61,7 +88,10 @@ uint ModPow(uint base, uint exp, uint n) {
                이론적으로 4N(99.99%) 이상 되는 값을 선택하도록 한다. 
  */
 bool IsPrime(uint testNum, uint repeat) {
-    return result
+    uint result;
+
+
+    return result;
 }
 
 /*
@@ -72,7 +102,9 @@ bool IsPrime(uint testNum, uint repeat) {
  * @todo        확장 유클리드 알고리즘을 사용하여 작성하도록 한다.
  */
 uint ModInv(uint a, uint m) {
-    return result
+    uint result;
+
+    return result;
 }
 
 /*
@@ -97,6 +129,8 @@ void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n) {
  * @todo      과제 안내 문서의 제한사항을 참고하여 작성한다.
  */
 uint miniRSA(uint data, uint key, uint n) {
+    uint result;
+    
     return result;
 }
 
