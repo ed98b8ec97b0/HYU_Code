@@ -59,7 +59,6 @@ int main(void)
     b *= my_pow(10, 6);
     test2 = (uint)b;
 
-    printf("test1 = %u, test2 = %u\n", test, test2);
     test2 = my_div(test, test2, &rem);
     result = IsPrime(test, 5);
     if (result == TRUE)
