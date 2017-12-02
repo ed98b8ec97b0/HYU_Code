@@ -19,10 +19,13 @@ int main(int argc, char* argv[])
     int proxy_sock, cli_sock, serv_sock;
     int port_no;
     int n, m, flag;
-    char *buffer, *url, *path;
+    char *buffer, *url, *path, *log_buff, *time_buff, *ip_buff;
     buffer = (char *)malloc(sizeof(char) * BUFF_SIZE);
     url = (char *)malloc(sizeof(char) * URL_SIZE);
     path = (char *)malloc(sizeof(char) * PATH_SIZE);
+    log_buff = (char *)malloc(sizeof(char) * (URL_SIZE * 2)); 
+    time_buff = (char *)malloc(sizeof(char) * 60);
+    ip_buff = (char *)malloc(sizeof(char) * URL_SIZE);
     char token1[URL_SIZE], token2[URL_SIZE], token3[10];
     char* temp = NULL;
     struct sockaddr_in proxy_addr, serv_addr, cli_addr;
@@ -36,7 +39,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "ERROR argument");
         exit(1);
     }
-    // signal(SIGPIPE, my_life_for_pipe);
+    signal(SIGPIPE, my_life_for_pipe);
 
     // printf("Proxy server\n");
     // printf("Computer Network Project2\n");
@@ -67,7 +70,7 @@ int main(int argc, char* argv[])
     {
         error("ERROR bind proxy socket");
     }
-
+    
     // proxy socket into listening mode 
     n = listen(proxy_sock, BACKLOG);
     if (n < 0)
@@ -85,6 +88,8 @@ int main(int argc, char* argv[])
         memset(buffer, 0, BUFF_SIZE);
         memset(url, 0, URL_SIZE);
         memset(path, 0, PATH_SIZE);
+        memset(log_buff, 0, (URL_SIZE * 2));
+
         // accepting client socket
         cli_sock = accept(proxy_sock, (struct sockaddr *) &proxy_addr, &clilen);
         if (cli_sock < 0)
@@ -181,6 +186,8 @@ int main(int argc, char* argv[])
             strcat(token1, "/");
             strcat(token1, path);
 
+            
+            
             flag = 0;
             flag = check(token1);
             if (flag == 1)
@@ -285,6 +292,27 @@ int main(int argc, char* argv[])
                 {
                     // printf("Add cache\n");
                     miss(obje);
+                }
+                int log_fd;
+                log_fd = open("proxy.log", O_CREAT | O_RDWR | O_APPEND, 0644);
+                if (n < 0)
+                {
+                    error("ERROR opening log");
+                }
+
+                time_t tm_time;
+                struct tm *st_time;
+
+                time(&tm_time);
+                st_time = localtime(&tm_time);
+                strftime(time_buff, 60, TIME_FORM, st_time);
+
+                sprintf(log_buff, "%s %s %s %d\n", time_buff, inet_ntop(AF_INET, &(cli_addr.sin_addr.s_addr), ip_buff, URL_SIZE), obje->url, obje->length);
+
+                n = write(log_fd, log_buff, strlen(log_buff));
+                if (n < 0)
+                {
+                    error("ERROR writing log");
                 }
             }
         }

@@ -10,6 +10,8 @@
 #include <ctype.h>
 #include <signal.h>
 #include <errno.h>
+#include <time.h>
+#include <arpa/inet.h>
 
 #define BACKLOG 5
 #define BUFF_SIZE 4096
@@ -22,3 +24,4 @@
 #define PATH_SIZE 500
 #define OBJE_SIZE 524288
 #define CASH_SIZE 5242880
+#define TIME_FORM "%a %d %b %Y %X %Z"
