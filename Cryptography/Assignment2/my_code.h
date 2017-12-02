@@ -5,3 +5,5 @@ uint my_div(uint numer, uint denom, uint *rem);
 uint my_add(uint op1, uint op2, uint n);
 uint my_sub(uint op1, uint op2, uint n);
 uint my_exp(uint op1, uint op2, uint n);
+uint my_pow(uint op1, uint op2);
+uint reform(uint n, uint *d);

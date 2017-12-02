@@ -13,7 +13,10 @@
 #include "miniRSA.h"
 
 // +, -, *, /, % 연산 구현 헤더
-#include "op.h"
+#include "my_code.h"
+
+// math.h
+#include <math.h>
 
 uint p, q, e, d, n;
 
@@ -54,7 +57,10 @@ uint ModAdd(uint a, uint b, byte op, uint n) {
 uint ModMul(uint x, uint y, uint n) {
     uint result;
 
-    result = my_mul(x, y, n);
+    x = my_mod(x, n);
+    y = my_mod(y, n);
+    result = x * y;
+    result = my_mod(result, n);
 
     return result;
 }
@@ -73,7 +79,7 @@ uint ModPow(uint base, uint exp, uint n) {
 
     for (int i = 0; i < exp; i++)
     {
-        result = my_mul(base, base, n);
+        result = my_exp(base, exp, n);
     }
 
     return result;
@@ -88,10 +94,45 @@ uint ModPow(uint base, uint exp, uint n) {
                이론적으로 4N(99.99%) 이상 되는 값을 선택하도록 한다. 
  */
 bool IsPrime(uint testNum, uint repeat) {
-    uint result;
+    int i, j;
+    double random;
+    uint a = 1, x, r, d = 0, b, c;
 
+    r = reform(testNum, &d);
 
-    return result;
+    for (i = 0; i < repeat; i++)
+    {
+        // 1 < a < n-1 인 a 생성.
+        while (a < 2)
+        {
+            random = WELLRNG512a() * (testNum - 1);
+            a = (uint) random;
+        }
+
+        x = my_exp(a, d, testNum);
+        if (x == 1)
+        {
+            goto last_for;
+        }
+
+        for (j = 0; j < r - 1; j++)
+        {
+            x *= x;
+            x = my_mod(x, testNum);
+            if (x == 1)
+            {
+                return FALSE;
+            }
+            if (x == testNum - 1)
+            {
+                goto last_for;
+            }
+        }
+        return FALSE;
+    last_for:;
+    }
+
+    return TRUE;
 }
 
 /*
@@ -103,6 +144,9 @@ bool IsPrime(uint testNum, uint repeat) {
  */
 uint ModInv(uint a, uint m) {
     uint result;
+    uint r_gcd, b, n;
+
+
 
     return result;
 }
@@ -117,7 +161,32 @@ uint ModInv(uint a, uint m) {
  * @return    void
  * @todo      과제 안내 문서의 제한사항을 참고하여 작성한다.
  */
-void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n) {
+void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n){
+    double r1, r2;
+    uint pi_n;
+    uint e_31 = my_pow(2, 31);
+
+    // n을 만들기 위한 p, q 만들기.
+    r1 = WELLRNG512a() * my_pow(2, 16);
+    r2 = WELLRNG512a() * my_pow(2, 16);
+
+    // n 만들기.
+    do
+    {
+        *p = (uint) r1;
+        *q = (uint) r2;
+    } while ((IsPrime(*p, 100) == TRUE) && (IsPrime(*q, 100) == TRUE) && (*p * *q >= e_31));
+    *n = *p + *q;
+    pi_n = (*p - 1) * (*q - 1);
+
+    // 개인키 공개키 만들기.
+    do
+    {
+        *e = (uint) rand();
+        *e = my_mod(*e, pi_n);
+    } while((gcd(*e, pi_n) != 1));
+
+    *d = ModInv(*e, *n);
 }
 
 /*
@@ -130,11 +199,13 @@ void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n) {
  */
 uint miniRSA(uint data, uint key, uint n) {
     uint result;
-    
+
+    result = my_exp(data, key, n);
+
     return result;
 }
 
-uint GCD(uint a, uint b) {
+uint gcd(uint a, uint b) {
     uint prev_a;
 
     while(b != 0) {

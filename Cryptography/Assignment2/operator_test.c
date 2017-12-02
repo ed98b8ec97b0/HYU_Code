@@ -2,10 +2,16 @@
 #include <time.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "op.h"
+#include <math.h>
+#include "my_code.h"
+
+#define LOOP 100
 
 double mrand(void) {
-    double r = (double)rand() / RAND_MAX;
+    double r;
+    
+    r = (double)rand() / RAND_MAX;
+    r *= (INT_MAX + 1);
     r += (INT_MAX + 1);
 
     return r;
@@ -13,35 +19,57 @@ double mrand(void) {
 
 int main(void)
 {
+    int i;
+    uint op1, op2, n, rem, real, mine;
+    
     srand(time(NULL));
+    op1 = rand();
+    op2 = rand();
+    n = 13;
+    rem = 0;
+    
+    for (i = 0; i < LOOP; i++)
+    {
+        op1 = mrand();
+        op2 = mrand();
 
-    uint a, b, c, n = 20, d = 0;
-
-    for (int i = 0; i < 5; i++) {
-        a = rand();
-        b = rand();
-
-        a %= n;
-        a += 1;
-        b %= n;
-        b += 1;
-        if (a >= b)
+        real = ((op1 % n) + (op2 % n)) % n;
+        mine = my_add(op1, op2, n);
+        if (real != mine)
         {
-            c = a - b;
-            c %= n;
+            printf("!ADD! (%u, %u): %u != %u\n", op1 % n, op2 % n, real, mine);
+        }
+
+        if ((op1 % n) < (op2 % n))
+        {
+            real = (((op1 % n) + n) - (op2 % n)) % n;
         }
         else
         {
-            c = a + n - b;
-            c %= n;
+            real = ((op1 % n) - (op2 % n)) % n;
+        }
+        mine = my_sub(op1, op2, n);
+        if (real != mine)
+        {
+            printf("!SUB! (%u, %u): %u != %u\n", op1 % n, op2 % n, real, mine);
         }
 
-        printf("a = %u, b = %u, n = %u\n", a, b, n);
-        printf("'+': %2u %2u\t", (a + b) % n, my_add(a, b, n));
-        printf("'-': %2u %2u\t", c, my_sub(a, b, n));
-        printf("'*': %2u %2u\t", (a * b) % n, my_mul(a, b, n));
-        printf("'/': %2u %2u\n\n", (a / b) % n, my_div(a, b, &d));
+        // real = (uint) pow(op1 % n, op2) % n;
+        // mine = my_exp(op1, op2, n);
+        // if (real != mine)
+        // {
+        //     printf("!EXP! %u^%u mod %u: %u != %u\n", op1, op2, n, real, mine);
+        // }
+
+
+        real = (op1 / op2);
+        mine = my_div(op1, op2, &rem);
+        if (real != mine)
+        {
+            printf("!DIV! (%u, %u): %u != %u\n", op1 % n, op2 % n, real, mine);
+        }
     }
+
 
     return 0;
 }

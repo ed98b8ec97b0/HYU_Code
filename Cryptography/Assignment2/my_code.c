@@ -1,4 +1,9 @@
-#include "op.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "my_code.h"
+
+extern int check;
 
 // 모듈러 연산
 uint my_mod(uint op, uint n)
@@ -15,15 +20,21 @@ uint my_mod(uint op, uint n)
     // 나눗셈 연산에 모듈러값과 피연산자를 넣는다.
     tmp = my_div(op, n, &rem);
     op = rem; // 나눗셈 연산을 하며 *rem에 저장된 값이 바로 모듈러 연산 후의 값.
-
     return op;
 }
 
 // 나눗셈 연산
 uint my_div(uint numer, uint denom, uint *rem)
 {
+    printf("%d ", check++);
     uint tmp = denom;
     uint quot = 1;
+
+    if (denom == 0)
+    {
+        printf("나누는 수가 0 입니다.\n");
+        exit(1);
+    }
 
     /*
     나눠지는 수가 나누는 수보다 작아서 더이상 나눌 수가 없는 상황.
@@ -103,7 +114,12 @@ uint my_sub(uint op1, uint op2, uint n)
 uint my_exp(uint op1, uint op2, uint n)
 {
     uint result = 1, cal = 1, rem = 0, tmp;
-    int i;
+    int i, j = 1;
+
+    if (op2 == 0)
+    {
+        return 1;
+    }
 
     op1 = my_mod(op1, n);
 
@@ -112,18 +128,19 @@ uint my_exp(uint op1, uint op2, uint n)
     {   
         i = 1;
         cal = op1;
+
         // Square and multiply
         while (i < op2)
         {   
             tmp = cal;
             cal *= tmp;
             cal = my_mod(cal, n);
+            i *= 2;
 
             if (i * 2 > op2)
             {
                 break;
-            }
-            i *= 2;
+            }  
         }
 
         // for loop에서 계산한 값을 result에 쌓음.
@@ -146,7 +163,74 @@ uint my_exp(uint op1, uint op2, uint n)
             op2 -= i;
         }   
     }
-    
     result = my_mod(result, n);
+
     return result;
+}
+
+// 일반 제곱연산
+uint my_pow(uint op1, uint op2)
+{
+    uint result = 1, cal = 1, rem = 0, tmp;
+    int i = 1;
+
+    // i와 op2가 같을 때 까지 반복
+    while (i != op2)
+    {
+        i = 1;
+        cal = op1;
+        // Square and multiply
+        while (i < op2)
+        {
+            tmp = cal;
+            cal *= tmp;
+            i *= 2;
+
+            if (i * 2 > op2)
+            {
+                break;
+            }
+        }
+
+        // for loop에서 계산한 값을 result에 쌓음.
+        result *= cal;
+
+        // op2 = 2^n + 1이라면 한번 더 곱하고 while문 탈출.
+        if ((op2 - i) == 1)
+        {
+            result *= op1;
+            break;
+        }
+
+        /*
+        i > op2, 다시 한번더 square and multiply를 작동.
+        이때, i를 다시 1/2시켜주고 그 뒤 op2-i를 이용해 재반복.
+        */
+        if (i != op2)
+        {
+            op2 -= i;
+        }
+    }
+
+    return result;
+}
+
+// n - 1을 2^r * d 꼴로 바꿨을 때의 d, r을 찾아주는 함수.
+uint reform(uint n, uint *d)
+{
+    uint r = 0, rem = 0, denom = 1, tmp;
+    
+    while(1)
+    {
+        denom *= 2;
+        r++;
+        *d = my_div(n, denom, &rem);
+        tmp = my_div(*d, 2, &rem);
+        if (tmp == 1)
+        {
+            break;
+        }
+    }
+
+    return r;   
 }
