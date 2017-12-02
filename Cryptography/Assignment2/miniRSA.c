@@ -93,48 +93,53 @@ uint ModPow(uint base, uint exp, uint n) {
  * @todo       Miller-Rabin 소수 판별법과 같은 확률적인 방법을 사용하여,
                이론적으로 4N(99.99%) 이상 되는 값을 선택하도록 한다. 
  */
-bool IsPrime(uint testNum, uint repeat) {
+bool IsPrime(uint testNum, uint repeat)
+{
     int i, j;
     double random;
-    uint a = 1, x, r, d = 0, b, c;
+    bool result = TRUE, possible;
+    uint a = 1, x, k, q = 0, b, tmp;
+    uint seed = time(NULL);
+    seed = time(NULL);
 
-    r = reform(testNum, &d);
+    k = reform(testNum - 1, &q);
 
-    for (i = 0; i < repeat; i++)
+    for (int i = 0; i < repeat; i++)
     {
-        // 1 < a < n-1 인 a 생성.
+        random = 0;
+        a = 0;
+        possible = FALSE;
+
         while (a < 2)
         {
             random = WELLRNG512a() * (testNum - 1);
-            a = (uint) random;
+            a = (uint)random;
         }
 
-        x = my_exp(a, d, testNum);
-        if (x == 1)
+        tmp = my_exp(a, q, testNum);
+        if (tmp == 1)
         {
-            goto last_for;
+            possible = TRUE;
+            continue;
         }
 
-        for (j = 0; j < r - 1; j++)
+        for (j = 0; j < k; j++)
         {
-            x *= x;
-            x = my_mod(x, testNum);
-            if (x == 1)
+            tmp = my_exp(a, my_pow(2, j) * q, testNum);
+            if (tmp == (testNum - 1))
             {
-                return FALSE;
-            }
-            if (x == testNum - 1)
-            {
-                goto last_for;
+                possible = TRUE;
+                break;
             }
         }
-        return FALSE;
-    last_for:;
+        if (possible == FALSE)
+        {
+            result = FALSE;
+        }
     }
 
-    return TRUE;
+    return result;
 }
-
 /*
  * @brief       모듈러 역 값을 계산하는 함수.
  * @param       uint a      : 피연산자1.

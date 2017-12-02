@@ -26,15 +26,15 @@ uint my_mod(uint op, uint n)
 // 나눗셈 연산
 uint my_div(uint numer, uint denom, uint *rem)
 {
-    uint tmp = denom;
-    uint quot = 1;
+    uint tmp = denom, overflow = 1;
+    uint quot = 0, tmp_quot;
 
     while (1)
     {
         tmp_quot = 1;
         if (denom == 0)
         {
-            printf("나누는 수가 0 입니다.\n");
+            printf("나누는 수가 0 입니다.\n%u / %u\n", numer, denom);
             exit(1);
         }
 
@@ -67,17 +67,27 @@ uint my_div(uint numer, uint denom, uint *rem)
         {
             tmp_quot <<= 1;
             denom <<= 1;
+            overflow = denom << 1;
+            if (overflow == 0)
+            {
+                break;
+            }
+            // printf("numer = %u, denom = %u\n", numer, denom);
+            // printf("overflow = %u\n", overflow);
         }
-        if (numer < denom)
+        if (denom > numer)
         {
-            tmp_quot >>= 1;
             denom >>= 1;
+            tmp_quot >>= 1;
         }
 
-        number -= denom;
+        // printf("numer = %u, denom = %u, rem = %u, quot = %u\n", numer, denom, *rem, quot);
+        numer -= denom;
         denom = tmp;
         quot += tmp_quot;
+        
     }
+    
     return quot;
 }
 
@@ -124,11 +134,15 @@ uint my_sub(uint op1, uint op2, uint n)
 uint my_exp(uint op1, uint op2, uint n)
 {
     uint result = 1, cal = 1, rem = 0, tmp;
-    int i, j = 1;
+    int i = 1, j = 1;
 
     if (op2 == 0)
     {
         return 1;
+    }
+    if (op2 == 1)
+    {
+        return my_mod(op1, n);
     }
 
     op1 = my_mod(op1, n);
@@ -156,7 +170,6 @@ uint my_exp(uint op1, uint op2, uint n)
         // for loop에서 계산한 값을 result에 쌓음.
         result *= cal;
         result = my_mod(result, n);
-
         // op2 = 2^n + 1이라면 한번 더 곱하고 while문 탈출.
         if ((op2 - i) == 1)
         {
@@ -174,7 +187,6 @@ uint my_exp(uint op1, uint op2, uint n)
         }   
     }
     result = my_mod(result, n);
-
     return result;
 }
 
@@ -183,6 +195,14 @@ uint my_pow(uint op1, uint op2)
 {
     uint result = 1, cal = 1, rem = 0, tmp;
     int i = 1;
+    if (op2 == 0)
+    {
+        return 1;
+    }
+    if (op2 == 1)
+    {
+        return op1;
+    }
 
     // i와 op2가 같을 때 까지 반복
     while (i != op2)
@@ -220,27 +240,40 @@ uint my_pow(uint op1, uint op2)
         {
             op2 -= i;
         }
+        
     }
-
+    
     return result;
 }
 
 // n - 1을 2^r * d 꼴로 바꿨을 때의 d, r을 찾아주는 함수.
 uint reform(uint n, uint *d)
 {
-    uint r = 0, rem = 0, denom = 1, tmp;
-    
-    while(1)
+    uint r = 0, rem = 0, denom = 1, quot, expo;
+    my_div(n, 2, &rem);
+    if (rem == 1)
+    {
+        printf("홀수만이 입력되어야합니다. 입력 오류\n");
+        exit(1);
+    }
+    while(denom < n)
     {
         denom *= 2;
         r++;
-        *d = my_div(n, denom, &rem);
-        tmp = my_div(*d, 2, &rem);
-        if (tmp == 1)
+        quot = my_div(n, denom, &rem);
+        if (rem == 0)
         {
-            break;
+            my_div(quot, 2, &rem);
+            {
+                if (rem == 1)
+                {
+                    *d = quot;
+                    expo = r;
+                }
+            }
         }
     }
 
-    return r;   
+    // printf("r = %u, d = %u\n", r, *d);
+    return expo;   
 }
