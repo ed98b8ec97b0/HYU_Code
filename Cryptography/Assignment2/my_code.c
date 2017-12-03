@@ -87,24 +87,18 @@ uint my_add(uint op1, uint op2, uint n)
 {
     uint result;
 
-    // 오버플로우 방지를 위한 모듈러 연산.
-    op1 = my_mod(op1, n);
-    op2 = my_mod(op2, n);
-
     op2 = n - op2;
-    if (op1 > op2)
+    if (op1 >= op2)
     {
-        result = my_mod(op1 - op2, n);
+        result = op1 - op2;
     }
     else if (op1 < op2)
     {
-        result = my_mod(n - op2 + op1, n);
+        result = n - op2 + op1;
+        
     }
-    else
-    {
-        result = 0;
-    }
-    // 덧셈 연산 후에도 모듈러 값보다 커질 수 있기 때문에 다시 한번 더 모듈러 연산을 수행한다.
+
+    result = my_mod(result, n);
 
     return result;
 }
@@ -114,20 +108,15 @@ uint my_sub(uint op1, uint op2, uint n)
 {
     uint result;
 
-    // 오버플로우 방지를 위한 모듈러 연산.
-    op1 = my_mod(op1, n);
-    op2 = my_mod(op2, n);
-
-    /*
-    작은 수에서 큰 수를 빼는 경우.
-    작은 수에 모듈러 값을 더해주는 것으로 똑같은 결과값을 가져올 수 있다.
-    */
-    if (op1 < op2)
+    if (op1 >= op2)
     { 
-        op2 = n - op2;
+        result = op1 - op2;
+    }
+    else
+    {
+        result = n - op2 + op1;
     }
 
-    result = op1 + op2;
     result = my_mod(result, n);
 
     return result;

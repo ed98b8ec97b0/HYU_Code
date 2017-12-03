@@ -15,8 +15,8 @@
 // +, -, *, /, % 연산 구현 헤더
 #include "my_code.h"
 
-// math.h
-#include <math.h>
+// 추가 헤더
+#include <limits.h>
 
 uint p, q, e, d, n;
 
@@ -30,17 +30,20 @@ uint p, q, e, d, n;
  * @todo      모듈러 값과 오버플로우 상황을 고려하여 작성한다.
  */
 
-uint ModAdd(uint a, uint b, byte op, uint n) {
-    uint result = 0; 
-    
-    switch (op)
+uint ModAdd(uint a, uint b, byte op, uint n)
+{
+    uint result;
+
+    a = my_mod(a, n);
+    b = my_mod(b, n);
+
+    if (op == '+')
     {
-        case '+':
-            result = my_add(a, b, n);
-            break;
-        case '-':
-            result = my_sub(a, b, n);
-            break;
+        result = my_add(a, b, n);
+    }
+    else
+    {
+        result = my_sub(a, b, n);
     }
 
     return result;
@@ -71,10 +74,10 @@ uint ModMul(uint x, uint y, uint n) {
  * @todo       모듈러 값과 오버플로우 상황을 고려하여 작성한다.
                'square and multiply' 알고리즘을 사용하여 작성한다.
  */
-uint ModPow(uint base, uint exp, uint n) {
+uint ModPow(uint base, uint expo, uint n) {
     uint result;
 
-    result = my_exp(base, exp, n);
+    result = my_exp(base, expo, n);
     
     return result;
 }
@@ -140,23 +143,63 @@ bool IsPrime(uint testNum, uint repeat)
  * @return      uint result : 피연산자의 모듈러 역수 값.
  * @todo        확장 유클리드 알고리즘을 사용하여 작성하도록 한다.
  */
-uint ModInv(uint a, uint m) {
+// uint ModInv(uint a, uint m) {
+//     uint result;
+//     uint p1 = 0, p2 = 1, p3, quot = 0, rem = 0, b = m;
+
+//     while (b != 1)
+//     {
+//         quot = my_div(b, a, &rem);
+//         b = a;
+//         a = rem;
+//         p3 = ModAdd(p1, ModMul(p2, quot, m), '-',m);
+//         p1 = p2;
+//         p2 = p3;
+//     }
+//     result = p3;
+
+//     return result;
+// }
+
+uint ModInv(uint a, uint m)
+{
     uint result;
-    uint p1 = 0, p2 = 1, p3, quot = 0, rem = 0, b = m;
-
-    while (b != 1)
+    uint rem = m, tmp;
+    uint div_val, mul_val, sub_val;
+    uint p = 0, q = 1;
+    while (m != 1)
     {
-        quot = my_div(b, a, &rem);
-        b = a;
-        a = rem;
-        p3 = ModAdd(p1, ModMul(p2, quot, m), '-',m);
-        p1 = p2;
-        p2 = p3;
-    }
-    result = p3;
+        div_val = my_div(m, a, &tmp);
+        mul_val = ModMul(div_val, q, rem);
+        sub_val = ModAdd(p, mul_val, '-', rem);
+        p = q;
+        q = sub_val;
 
+        tmp = my_mod(m, a);
+        m = a;
+        a = tmp;
+    }
+    result = p;
     return result;
 }
+
+// uint ModInv(uint a, uint m)
+// {
+//     uint modulo = m;
+//     uint x = 0, y = 1, rem = 0;
+//     while (m != 1)
+//     {
+//         uint val = ModMul(my_div(m, a, &rem), y, modulo);
+//         val = ModAdd(x, val, '-', modulo);
+//         x = y;
+//         y = val;
+
+//         val = my_mod(m, a);
+//         m = a;
+//         a = val;
+//     }
+//     return x;
+// }
 
 /*
  * @brief     RSA 키를 생성하는 함수.
@@ -168,7 +211,8 @@ uint ModInv(uint a, uint m) {
  * @return    void
  * @todo      과제 안내 문서의 제한사항을 참고하여 작성한다.
  */
-void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n){
+void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n)
+{
     double r1 = 1, r2 = 1, r3 = 1;
     bool check = TRUE;
     uint pi_n, rem, tmp1, tmp2;
@@ -196,14 +240,13 @@ start:
     {
         goto start;
     }
-    
 
 maker2:
     r2 = 0;
     *q = 0;
     r2 = WELLRNG512a() * (e_32 - 1);
     r2 = my_mod(r2, e_16);
-    *q = (uint) (r2 + 1);
+    *q = (uint)(r2 + 1);
     my_div(*q, 2, &rem);
     if (*q < e_15)
     {
@@ -232,8 +275,8 @@ maker2:
     {
         r3 = 1;
         r3 = WELLRNG512a() * pi_n;
-        *e = (uint) r3;
-    } while((r3 < 2) || (gcd(*e, pi_n) != 1));
+        *e = (uint)r3;
+    } while ((r3 < 2) || (gcd(*e, pi_n) != 1));
     // 개인키 만들기.
     *d = ModInv(*e, pi_n);
 }
