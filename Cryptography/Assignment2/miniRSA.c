@@ -74,11 +74,8 @@ uint ModMul(uint x, uint y, uint n) {
 uint ModPow(uint base, uint exp, uint n) {
     uint result;
 
-    for (int i = 0; i < exp; i++)
-    {
-        result = my_exp(base, exp, n);
-    }
-
+    result = my_exp(base, exp, n);
+    
     return result;
 }
 
@@ -111,7 +108,7 @@ bool IsPrime(uint testNum, uint repeat)
             a = (uint)random;
         }
 
-        tmp = my_exp(a, q, testNum);
+        tmp = ModPow(a, q, testNum);
         if (tmp == 1)
         {
             possible = TRUE;
@@ -120,7 +117,7 @@ bool IsPrime(uint testNum, uint repeat)
 
         for (j = 0; j < k; j++)
         {
-            tmp = my_exp(a, my_pow(2, j) * q, testNum);
+            tmp = ModPow(a, my_pow(2, j) * q, testNum);
             if (tmp == (testNum - 1))
             {
                 possible = TRUE;
@@ -147,13 +144,12 @@ uint ModInv(uint a, uint m) {
     uint result;
     uint p1 = 0, p2 = 1, p3, quot = 0, rem = 0, b = m;
 
-    // a = 15, m = 26
     while (b != 1)
     {
         quot = my_div(b, a, &rem);
         b = a;
         a = rem;
-        p3 = my_sub(p1, ModMul(p2, quot, m), m);
+        p3 = ModAdd(p1, ModMul(p2, quot, m), '-',m);
         p1 = p2;
         p2 = p3;
     }
@@ -185,10 +181,8 @@ start:
     r1 = 0;
     *p = 0;
     r1 = WELLRNG512a() * (e_32 - 1);
-    printf("my_mod(%lf, %u)\n", r1, e_16);
     r1 = my_mod(r1, e_16);
     *p = (uint)(r1 + 1);
-    printf("my_div(%u, 2, %u)\n", *p, rem);
     my_div(*p, 2, &rem);
     if (*p < e_15)
     {
@@ -208,10 +202,8 @@ maker2:
     r2 = 0;
     *q = 0;
     r2 = WELLRNG512a() * (e_32 - 1);
-    printf("my_mod(%lf, %u)\n", r2, e_16);
     r2 = my_mod(r2, e_16);
     *q = (uint) (r2 + 1);
-    printf("my_div(%u, 2, %u)\n", *q, rem);
     my_div(*q, 2, &rem);
     if (*q < e_15)
     {
@@ -227,28 +219,23 @@ maker2:
     }
 
     *n = *p * *q;
-    printf("*p = %u, *q = %u\n32 = %u\n*n = %u\n31 = %u\n", *p, *q, e_32 - 1, *n, e_31);
     if (!((*n < (e_32 - 1)) && (*n >= e_31)))
     {
         goto start;
     }
-    printf("범위 확인 완료.\n");
 
     // 공개키 만들기.
     tmp1 = *p;
     tmp2 = *q;
     pi_n = (tmp1 - 1) * (tmp2 - 1);
-    printf("pi_n = %u\n", pi_n);
     do
     {
         r3 = 1;
         r3 = WELLRNG512a() * pi_n;
         *e = (uint) r3;
     } while((r3 < 2) || (gcd(*e, pi_n) != 1));
-    printf("공개키 완성.\n");
     // 개인키 만들기.
     *d = ModInv(*e, pi_n);
-    printf("개인키 완성?\n");
 }
 
 /*
@@ -262,9 +249,7 @@ maker2:
 uint miniRSA(uint data, uint key, uint n) {
     uint result;
 
-    printf("my_exp(%u, %u, %u)\n", data, key, n);
     result = my_exp(data, key, n);
-    printf("Not overflowed!\n");
 
     return result;
 }

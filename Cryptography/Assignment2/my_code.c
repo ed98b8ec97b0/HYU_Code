@@ -173,7 +173,6 @@ uint my_exp(uint op1, uint op2, uint n)
     // 4. 1~3 과정을 op2가 0이 될 때까지 반복한다.
     while (op2 > 0)
     {
-        printf("t_op1 = %u, op2 = %u, i = %u\n", t_op1, op2, i);
         // 실제 계산에는 op1을 이용하지 않고 t_op1을 사용한다.
         t_op1 = op1;
         i = 1;
@@ -188,6 +187,14 @@ uint my_exp(uint op1, uint op2, uint n)
         {
             t_op1 = my_mul(t_op1, t_op1, n);
             i <<= 1;
+            if (i == 0)
+            {
+                exit(1);
+            }
+            if (i == (1<<31))
+            {
+                break;
+            }
         }
         result = my_mul(result, t_op1, n);
         op2 -= i;
