@@ -1,59 +1,10 @@
 // #include "miniRSA.h"
-// #include "my_code.h"
+#include "my_code.h"
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
 #include <stdlib.h>
 
-typedef unsigned int uint;
-
-uint my_div(uint numer, uint denom, uint *rem)
-{
-    uint n_bit = 1, d_bit = 1, p_bit, quot = 0;
-    uint n_tmp, d_tmp;
-
-    if (numer == 0)
-    {
-        return 0;
-    }
-
-    n_tmp = numer;
-    while (n_tmp > 1)
-    {
-        n_tmp >>= 1;
-        n_bit++;
-    }
-    d_tmp = denom;
-    while (d_bit > 1)
-    {
-        d_tmp >>= 1;
-        d_bit++;
-    }
-    if (n_bit < d_bit)
-    {
-        *rem = numer;
-        return 0;
-    }
-
-    p_bit = n_bit - d_bit;
-    printf("n_bit = %u, d_bit = %u\n", n_bit, d_bit);
-    n_tmp = numer;
-    d_tmp = denom;
-    while (n_tmp >= d_tmp)
-    {
-        d_tmp <<= p_bit;
-        printf("d_tmp = %u\n", d_tmp);
-        if (n_tmp > d_tmp)
-        {
-            n_tmp -= d_tmp;
-            quot += 1 << p_bit;
-        }
-        p_bit--;
-    }
-
-    *rem = n_tmp;
-    return quot;
-}
 
 int main(void)
 {
@@ -61,10 +12,20 @@ int main(void)
     // seed = time(NULL);
     // InitWELLRNG512a(&seed);
     int i;
-    uint test = 2, test2, rem = 0, quot;
+    // 작은 수 테스트
+    // uint op1 = 2, op2 = 31, n = 24342, result;
+    // overflow 테스트
+    // uint op1 = 3939393939, op2 = 2828282828, rem = 0, result, n = 4040404040;
+    // uint op1 = 3939393939, op2 = 3939393939, rem = 0, result, n = 4040404040;
+    // 암호화 테스트
+    uint op1 = 2013405038, op2 = 2344414, result, n = 2147483649;
     double a, b;
-    
-    quot = my_div(51, 2, &rem);
-    printf("50 = 2 * %u + %u\n", quot, rem);
+
+    // my_mul test
+    // result = my_mul(op1, op2, n); printf("%u * %u mod %u = %u\n", op1, op2, n, result);
+
+    // my_exp test
+    result = my_exp(op1, op2, n); printf("%u ^ %u mod %u = %u\n", op1, op2, n, result);
+
     return 0;
 }
