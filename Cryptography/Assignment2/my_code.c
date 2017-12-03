@@ -6,6 +6,20 @@
 
 extern int check;
 
+int detect_overflow(uint op)
+{   
+    int result = 0;
+    uint n;
+    n = op;
+    n <<= 1;
+    if (n == 0)
+    {
+        result = 1;
+    }
+
+    return result;
+}
+
 // 모듈러 연산
 uint my_mod(uint op, uint n)
 {
@@ -69,9 +83,7 @@ uint my_div(uint numer, uint denom, uint *rem)
         {
             tmp_quot <<= 1;
             denom <<= 1;
-            overflow = denom;
-            overflow <<= 1;
-            if (overflow == 0)
+            if (detect_overflow(denom));
             {
                 break;
             }

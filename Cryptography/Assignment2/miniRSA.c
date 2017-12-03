@@ -176,7 +176,7 @@ void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n){
     double r1 = 1, r2 = 1, r3 = 1;
     bool check = TRUE;
     uint pi_n, rem1, rem2;
-    uint e_32 = my_pow(2, 32), e_16 = my_pow(2, 16), e_31 = my_pow(2, 31);
+    uint e_32 = my_pow(2, 32), e_16 = my_pow(2, 16), e_31 = my_pow(2, 31), range = my_pow(2,18);
 
     // n 만들기.
 rmaking:
@@ -186,26 +186,27 @@ rmaking:
     r2 = 0;
 
     // 0보다 큰 r1과 r2 만들기.
-    r1 = WELLRNG512a() * (e_32 - 1);
-    r2 = WELLRNG512a() * (e_32 - 1);
+    r1 = WELLRNG512a() * range;
+    r2 = WELLRNG512a() * range;
 
-    *p = (uint) r1;
-    *q = (uint) r2;
+    *p = (uint) r1 + 1;
+    *q = (uint) r2 + 1;
 
     my_div(*p, 2, &rem1);
     my_div(*q, 2, &rem2);
-
-    printf("p = %u, q= %u\n", *p, *q);
 
     // 검증단계.
     if ((rem1 == 0) || (rem2 == 0))
     {
         goto rmaking;
     }
+    printf("p = %u, q= %u\n", *p, *q);
+
     if ((IsPrime(*p, 10) == FALSE) || (IsPrime(*q, 10) == FALSE))
     {
         goto rmaking;
     }
+    
     *n = *p + *q;
     if ((*n >= e_32) || (*n < e_31))
     {
