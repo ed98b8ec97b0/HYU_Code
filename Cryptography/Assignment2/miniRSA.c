@@ -185,8 +185,10 @@ start:
     r1 = 0;
     *p = 0;
     r1 = WELLRNG512a() * (e_32 - 1);
+    printf("my_mod(%lf, %u)\n", r1, e_16);
     r1 = my_mod(r1, e_16);
     *p = (uint)(r1 + 1);
+    printf("my_div(%u, 2, %u)\n", *p, rem);
     my_div(*p, 2, &rem);
     if (*p < e_15)
     {
@@ -206,8 +208,10 @@ maker2:
     r2 = 0;
     *q = 0;
     r2 = WELLRNG512a() * (e_32 - 1);
+    printf("my_mod(%lf, %u)\n", r2, e_16);
     r2 = my_mod(r2, e_16);
     *q = (uint) (r2 + 1);
+    printf("my_div(%u, 2, %u)\n", *q, rem);
     my_div(*q, 2, &rem);
     if (*q < e_15)
     {

@@ -7,20 +7,6 @@
 
 extern int check;
 
-int detect_overflow(uint op)
-{   
-    int result = 0;
-    uint n;
-    n = op;
-    n <<= 1;
-    if (n == 0)
-    {
-        result = 1;
-    }
-
-    return result;
-}
-
 // 모듈러 연산
 uint my_mod(uint op, uint n)
 {
@@ -47,7 +33,7 @@ uint my_mod(uint op, uint n)
 // 나눗셈 연산
 uint my_div(uint numer, uint denom, uint *rem)
 {
-    uint tmp = denom, overflow = 1;
+    uint tmp = denom, tmp_denom = 1;
     uint quot = 0, tmp_quot;
 
     while (1)
@@ -60,9 +46,9 @@ uint my_div(uint numer, uint denom, uint *rem)
         }
 
         /*
-    나눠지는 수가 나누는 수보다 작아서 더이상 나눌 수가 없는 상황.
-    이때, numer가 나머지이다.
-    */
+        나눠지는 수가 나누는 수보다 작아서 더이상 나눌 수가 없는 상황.
+        이때, numer가 나머지이다.
+        */
         if (numer < denom)
         {
             *rem = numer;
@@ -70,8 +56,8 @@ uint my_div(uint numer, uint denom, uint *rem)
         }
 
         /*
-    나눠지는 수와 나누는 수가 같아 몫 = 1, 나머지는 0인 상황.
-    */
+        나눠지는 수와 나누는 수가 같아 몫 = 1, 나머지는 0인 상황.
+        */
         if (numer == denom)
         {
             *rem = 0;
@@ -80,20 +66,20 @@ uint my_div(uint numer, uint denom, uint *rem)
         }
 
         /*
-    시프트 연산자로 나눌 때 2의 거듭 제곱수로만 나눌 수 있다.
-    2의 거듭제곱수 중 가능한 가장 큰 수부터 몫으로 하여 나누는 수에 곱해 나눠지는 수에 뺀 값을 다시 나눠지는 수로 쓴다.
-    이를 위의 종료 조건까지 반복하여 나오는 모든 몫을 전부 더하면 그게 실제 몫이 된다.
-    */
-        while (denom <= numer)
+        시프트 연산자로 나눌 때 2의 거듭 제곱수로만 나눌 수 있다.
+        2의 거듭제곱수 중 가능한 가장 큰 수부터 몫으로 하여 나누는 수에 곱해 나눠지는 수에 뺀 값을 다시 나눠지는 수로 쓴다.
+        이를 위의 종료 조건까지 반복하여 나오는 모든 몫을 전부 더하면 그게 실제 몫이 된다.
+        */
+        while ((denom <= numer) || (denom == 0))
         {
+            tmp_denom = denom;
             tmp_quot <<= 1;
             denom <<= 1;
-            if (detect_overflow(denom));
-            {
-                break;
-            }
-            // printf("numer = %u, denom = %u\n", numer, denom);
-            // printf("overflow = %u\n", overflow);
+        }
+        if (denom == 0)
+        {
+            denom = tmp_denom;
+            tmp_quot >>= 1;
         }
         if (denom > numer)
         {
@@ -104,9 +90,8 @@ uint my_div(uint numer, uint denom, uint *rem)
         numer -= denom;
         denom = tmp;
         quot += tmp_quot;
-        
     }
-    
+
     return quot;
 }
 
@@ -197,7 +182,8 @@ uint my_exp(uint op1, uint op2, uint n)
     }
     if (op2 == 1)
     {
-        return my_mod(op1, n);
+        op1 = my_mod(op1, n);
+        return op1;
     }
 
     op1 = my_mod(op1, n);
@@ -205,8 +191,10 @@ uint my_exp(uint op1, uint op2, uint n)
     // i와 op2가 같을 때 까지 반복
     while (i != op2)
     {   
-        i = 1;
+        i = 2;
         cal = op1;
+        cal += op1;
+        cal = my_mod(cal, n);
 
         // Square and multiply
         while (i < op2)
@@ -218,7 +206,8 @@ uint my_exp(uint op1, uint op2, uint n)
                 exit(1);
             }
             tmp = cal;
-            cal = my_mul(cal, tmp, n);
+            cal *= tmp;
+            cal = my_mod(cal, n);
             
             i *= 2;
 
