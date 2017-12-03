@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "my_code.h"
 
@@ -26,6 +27,11 @@ uint my_mod(uint op, uint n)
     uint rem = 0; // 나머지를 받아오기 위한 포인터
     uint tmp; // 나눗셈시 return값을 받기 위한 임시 값.
 
+    if (op == 0)
+    {
+        return 0;
+    }
+
     // 모듈러 연산을 할 필요가 없는 경우.
     if (op < n) 
     {
@@ -43,7 +49,6 @@ uint my_div(uint numer, uint denom, uint *rem)
 {
     uint tmp = denom, overflow = 1;
     uint quot = 0, tmp_quot;
-    uint over = (my_pow(2, 31) - 1);
 
     while (1)
     {
@@ -144,6 +149,42 @@ uint my_sub(uint op1, uint op2, uint n)
     return result;
 }
 
+uint my_mul(uint op1, uint op2, uint n)
+{
+    uint result;
+
+    op1 = my_mod(op1, n);
+    op2 = my_mod(op2, n);
+
+    if (op1 * op2 == 0)
+    {
+        for (int i = 0; i < op2; i <<= 1)
+        {
+            if ((op2 - i) == 1)
+            {
+                break;
+            }
+            if (op1 << 1 == 0)
+            {
+                my_add(op1, op2, n);
+            }
+            else
+            {
+                op1 <<= 1;
+            }
+        }  
+    }
+    else
+    {
+        op1 *= op2;
+        op1 = my_mod(op1, n);
+    }
+    
+    result = op1;
+
+    return result;
+}
+
 // 모듈러 제곱 연산
 uint my_exp(uint op1, uint op2, uint n)
 {
@@ -169,13 +210,19 @@ uint my_exp(uint op1, uint op2, uint n)
 
         // Square and multiply
         while (i < op2)
-        {   
+        {
+            if (cal == 0)
+            {
+                printf("call == 0!\n");
+                printf("op1 == %u\n", op1);
+                exit(1);
+            }
             tmp = cal;
-            cal *= tmp;
-            cal = my_mod(cal, n);
+            cal = my_mul(cal, tmp, n);
+            
             i *= 2;
 
-            if (i * 2 > op2)
+            if (i * 2 > op2 || i * 2 == 0)
             {
                 break;
             }  
@@ -200,7 +247,9 @@ uint my_exp(uint op1, uint op2, uint n)
             op2 -= i;
         }   
     }
+
     result = my_mod(result, n);
+
     return result;
 }
 

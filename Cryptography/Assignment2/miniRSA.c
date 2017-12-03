@@ -57,10 +57,7 @@ uint ModAdd(uint a, uint b, byte op, uint n) {
 uint ModMul(uint x, uint y, uint n) {
     uint result;
 
-    x = my_mod(x, n);
-    y = my_mod(y, n);
-    result = x * y;
-    result = my_mod(result, n);
+    result = my_mul(x, y, n);
 
     return result;
 }
@@ -148,16 +145,19 @@ bool IsPrime(uint testNum, uint repeat)
  */
 uint ModInv(uint a, uint m) {
     uint result;
-    uint x, r_gcd, rem = 0;
+    uint p1 = 0, p2 = 1, p3, quot = 0, rem = 0, b = m;
 
-    // ax + my = 1;
-    // ax = 1 + my;
-    // x = (1 + my) / a
-    r_gcd = gcd(a, m);
-    x = my_div(r_gcd, a, &rem);
-    printf("gcd = %u, x = %u\n", r_gcd, x);
-
-    result = x;
+    // a = 15, m = 26
+    while (b != 1)
+    {
+        quot = my_div(b, a, &rem);
+        b = a;
+        a = rem;
+        p3 = my_sub(p1, ModMul(p2, quot, m), m);
+        p1 = p2;
+        p2 = p3;
+    }
+    result = p3;
 
     return result;
 }
@@ -175,55 +175,76 @@ uint ModInv(uint a, uint m) {
 void miniRSAKeygen(uint *p, uint *q, uint *e, uint *d, uint *n){
     double r1 = 1, r2 = 1, r3 = 1;
     bool check = TRUE;
-    uint pi_n, rem1, rem2;
-    uint e_32 = my_pow(2, 32), e_16 = my_pow(2, 16), e_31 = my_pow(2, 31), range = my_pow(2,18);
+    uint pi_n, rem, tmp1, tmp2;
+    uint e_32 = my_pow(2, 32), e_16 = my_pow(2, 16), e_31 = my_pow(2, 31), e_17 = my_pow(2, 17), e_15 = my_pow(2, 15);
 
     // n 만들기.
-rmaking:
-    *p = 0;
-    *q = 0;
-    r1 = 0;
-    r2 = 0;
+start:
 
     // 0보다 큰 r1과 r2 만들기.
-    r1 = WELLRNG512a() * range;
-    r2 = WELLRNG512a() * range;
-
-    *p = (uint) r1 + 1;
-    *q = (uint) r2 + 1;
-
-    my_div(*p, 2, &rem1);
-    my_div(*q, 2, &rem2);
-
-    // 검증단계.
-    if ((rem1 == 0) || (rem2 == 0))
+    r1 = 0;
+    *p = 0;
+    r1 = WELLRNG512a() * (e_32 - 1);
+    r1 = my_mod(r1, e_16);
+    *p = (uint)(r1 + 1);
+    my_div(*p, 2, &rem);
+    if (*p < e_15)
     {
-        goto rmaking;
+        goto start;
     }
-    printf("p = %u, q= %u\n", *p, *q);
-
-    if ((IsPrime(*p, 10) == FALSE) || (IsPrime(*q, 10) == FALSE))
+    if (rem == 0)
     {
-        goto rmaking;
+        goto start;
+    }
+    if (IsPrime(*p, 10) == FALSE)
+    {
+        goto start;
     }
     
-    *n = *p + *q;
-    if ((*n >= e_32) || (*n < e_31))
+
+maker2:
+    r2 = 0;
+    *q = 0;
+    r2 = WELLRNG512a() * (e_32 - 1);
+    r2 = my_mod(r2, e_16);
+    *q = (uint) (r2 + 1);
+    my_div(*q, 2, &rem);
+    if (*q < e_15)
     {
-        goto rmaking;
+        goto maker2;
     }
-    
+    if (rem == 0)
+    {
+        goto maker2;
+    }
+    if (IsPrime(*q, 10) == FALSE)
+    {
+        goto maker2;
+    }
+
+    *n = *p * *q;
+    printf("*p = %u, *q = %u\n32 = %u\n*n = %u\n31 = %u\n", *p, *q, e_32 - 1, *n, e_31);
+    if (!((*n < (e_32 - 1)) && (*n >= e_31)))
+    {
+        goto start;
+    }
+    printf("범위 확인 완료.\n");
+
     // 공개키 만들기.
+    tmp1 = *p;
+    tmp2 = *q;
+    pi_n = (tmp1 - 1) * (tmp2 - 1);
+    printf("pi_n = %u\n", pi_n);
     do
     {
-        pi_n = (*p - 1) * (*q - 1);
         r3 = 1;
         r3 = WELLRNG512a() * pi_n;
         *e = (uint) r3;
     } while((r3 < 2) || (gcd(*e, pi_n) != 1));
-
+    printf("공개키 완성.\n");
     // 개인키 만들기.
     *d = ModInv(*e, pi_n);
+    printf("개인키 완성?\n");
 }
 
 /*
@@ -237,7 +258,9 @@ rmaking:
 uint miniRSA(uint data, uint key, uint n) {
     uint result;
 
+    printf("my_exp(%u, %u, %u)\n", data, key, n);
     result = my_exp(data, key, n);
+    printf("Not overflowed!\n");
 
     return result;
 }
@@ -246,13 +269,13 @@ uint gcd(uint a, uint b) {
     uint prev_a;
 
     while(b != 0) {
-        printf("GCD(%u, %u)\n", a, b);
+        // printf("GCD(%u, %u)\n", a, b);
         prev_a = a;
         a = b;
         while(prev_a >= b) prev_a -= b;
         b = prev_a;
     }
-    printf("GCD(%u, %u)\n\n", a, b);
+    // printf("GCD(%u, %u)\n\n", a, b);
     return a;
 }
 
