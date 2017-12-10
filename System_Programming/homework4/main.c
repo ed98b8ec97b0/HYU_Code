@@ -51,11 +51,15 @@ int main(void) {
 
         // parse_cmd->argv[] test
 
-        if ((strlen(parsed->argv[0]) <= 5) && (strncmp(parsed->argv[0], "exit", 4) == 0)) {
+        if (strcmp(parsed->argv[0], "exit") == 0) {
             printf("BYE!\n");
             exit(0);
-        } else if ((strlen(parsed->argv[0]) <= 3) && (strncmp(parsed->argv[0], "cd", 2) == 0)) {
+        } else if (strcmp(parsed->argv[0], "cd") == 0) {
             cd(parsed->argc, parsed->argv);
+        } else if (strcmp(parsed->argv[0], "history") == 0) {
+
+        } else if (strncmp(parsed->argv[0], "!", 1)) {
+            
         } else {
             printf("smsh: command not found: %s\n", parsed->argv[0]);
         }
