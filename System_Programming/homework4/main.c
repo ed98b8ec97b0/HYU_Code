@@ -10,6 +10,7 @@ extern int arr_index;
 
 int main(void) {
     char path[PATH_SIZE], cmd[CMD_SIZE];
+    arr_history[0] = (char *) malloc(sizeof(char) * CMD_SIZE);
 
     // 구동시 등장하는 쉘 인트로 문구.
     printf("\nSimple Linux Shell\n");
@@ -28,10 +29,19 @@ int main(void) {
         // command를 받아와 parser에 넣고 argv[]의 형태로 변환.
         printf("%s$ ", path);
         fgets(cmd, CMD_SIZE, stdin);
-        if (arr_index <= 20 && cmd[0] != '!') {
-            arr_history[arr_index] = (char *) malloc(sizeof(char) * CMD_SIZE);
-            memmove(arr_history[arr_index++], cmd, CMD_SIZE);
+
+        // history를 위해 cmd를 가져오는 조건문.
+        if (cmd[0] != '!') {
+            // history에는 20개까지만 저장.
+            if (arr_index <= 20) {
+                arr_history[arr_index] = (char *) malloc(sizeof(char) * CMD_SIZE);
+                memmove(arr_history[arr_index++], cmd, CMD_SIZE);
+            }
+            // 0번은 마지막 command를 실행하기 위해 저장하는 구역.
+            // 매번 malloc하지 않게 main 최상단에서 malloc을 해둠.
+            memmove(arr_history[0], cmd, CMD_SIZE);
         }
+
         command *parsed = parse_cmd(cmd);
         exec_cmd(parsed->argc, parsed->argv);
     }

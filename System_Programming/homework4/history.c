@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "smsh.h"
 
@@ -21,11 +22,18 @@ void history(int argc, char* argv[]) {
 // history 안에 들어있던 함수를 가져오는 함수.
 void history_call(int argc, char* argv[]) {
     int n;
+    command *recall;
 
     // argument 수가 1개 이상인 경우.
     if (argc != 1) {
         printf("usage: !# (1 <= # <= 20)\n");
         return;
+    }
+    // !!가 들어올 경우.
+    n = strlen(argv[0]);
+    if ((n == 2) && (*(argv[0] + 1) == '!')) {
+        n = 0;
+        goto exec_line;
     }
 
     // string을 int로 변경.
@@ -37,8 +45,8 @@ void history_call(int argc, char* argv[]) {
         return;
     }
 
+exec_line:
     // 해당 커맨드 가져와서 parse_cmd에 넣은 뒤 exec_cmd에 넣어 실행.
-    command *recall = (command *)malloc(sizeof(command));
     recall = parse_cmd(arr_history[n]);
     exec_cmd(recall->argc, recall->argv);
 }
