@@ -12,3 +12,4 @@ void cd(int argc, char* argv[]);
 command* parse_cmd(char *cmd);
 void history(int argc, char* argv[]);
 void history_call(int argc, char* argv[]);
+void exec_cmd(int argc, char* argv[]);
