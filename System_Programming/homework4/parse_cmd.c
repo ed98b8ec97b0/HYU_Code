@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,7 +8,12 @@ command* parse_cmd(char *cmd) {
     char *tmp = NULL;
     command *output = (command *)malloc(sizeof(command));
     output->argc = 0;
-    output->next = NULL;
+    output->bg_flag = 0;
+
+    if (cmd[strlen(cmd) - 2] == '&') {
+        output->bg_flag = 1;
+        cmd[strlen(cmd) - 2] = '\0';
+    }
 
     tmp = strtok(cmd, " \n");
     while (tmp != NULL) {

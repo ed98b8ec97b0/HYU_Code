@@ -43,7 +43,12 @@ int main(void) {
         }
 
         command *parsed = parse_cmd(cmd);
-        exec_cmd(parsed->argc, parsed->argv);
+        if (parsed->bg_flag == 0) {
+            exec_cmd(parsed->argc, parsed->argv);
+        }
+        else {
+            exec_cmd_bg(parsed->argc, parsed->argv);
+        }
     }
 
     return 0;
