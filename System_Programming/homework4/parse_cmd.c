@@ -7,6 +7,7 @@ command* parse_cmd(char *cmd) {
     char *tmp = NULL;
     command *output = (command *)malloc(sizeof(command));
     output->argc = 0;
+    output->next = NULL;
 
     tmp = strtok(cmd, " \n");
     while (tmp != NULL) {

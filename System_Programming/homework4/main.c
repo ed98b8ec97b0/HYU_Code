@@ -41,8 +41,6 @@ int main(void) {
             // 매번 malloc하지 않게 main 최상단에서 malloc을 해둠.
             memmove(arr_history[0], cmd, CMD_SIZE);
         }
-        // parse_redir(cmd);
-        // break;
 
         command *parsed = parse_cmd(cmd);
         exec_cmd(parsed->argc, parsed->argv);

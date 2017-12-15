@@ -1,5 +1,5 @@
 CC = gcc
-OBJS = main.c exec_cmd.c history.c cd.c parse_cmd.c parse_redir.c
+OBJS = main.c exec_cmd.c history.c cd.c parse_cmd.c
 TARGET = smsh
 
 all : $(TARGET)

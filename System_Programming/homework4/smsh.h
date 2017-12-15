@@ -5,6 +5,7 @@
 typedef struct _command {
     int argc;
     char *argv[MAX_ARG];
+    struct _command* next;
 } command;
 
 int main(void);
@@ -14,3 +15,4 @@ void history(int argc, char* argv[]);
 void history_call(int argc, char* argv[]);
 void exec_cmd(int argc, char* argv[]);
 command* parse_redir(char *cmd);
+command* parse_semicolon(char *cmd);
