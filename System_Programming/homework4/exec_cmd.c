@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "smsh.h"
 
 void exec_cmd(int argc, char* argv[]) {
     char *bin_exec;
-    int pid, n;
+    int pid, n, status = 0;
 
     // shell에서 따로 fork가 필요없이 작동하는 command
     // exit command
@@ -51,6 +53,6 @@ void exec_cmd(int argc, char* argv[]) {
         exit(5);
     }
     else {
-        pause();
+        waitpid(pid, &status, 0);
     }
 }
