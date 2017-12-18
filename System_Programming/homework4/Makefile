@@ -5,5 +5,6 @@ TARGET = smsh
 all : $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -g -o $@ $(OBJS)
+	$(CC) -o $@ $(OBJS)
 	./smsh
+	rm smsh
