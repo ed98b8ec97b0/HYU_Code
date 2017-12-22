@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 from scipy.special import expit
 
 from sklearn import metrics
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import Normalizer
 from sklearn.decomposition import PCA
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import StratifiedKFold
 
 
 
@@ -34,10 +35,8 @@ def load_mnist(path, kind):
     return images, labels
 
 # Load Data
-# print('=== Loading MNIST Data ===')
 X_train, y_train = load_mnist('mnist/', 'train')
 X_test, y_test = load_mnist('mnist/', 'test')
-# print('Compelte!')
 
 # Neural Network
 nn = MLPClassifier(hidden_layer_sizes=(800,),
@@ -52,37 +51,10 @@ nn = MLPClassifier(hidden_layer_sizes=(800,),
                     verbose=False)
 
 # Pipeline
-# print('=== Fitting Classifier ===')
-pipe_nn = Pipeline([('scl', StandardScaler()),
+pipe_nn = Pipeline([('nrm', Normalizer()),
                     ('pca', PCA(n_components=250)),
                     ('clf', nn)])
-
 pipe_nn.fit(X_train, y_train)
-# print('Training Compeleted!')
 
-
-
-# Acccuracy
-# print('=== Testing Classifier ===')
-print('Training Accuracy: %.2f%%' % (pipe_nn.score(X_train, y_train) * 100))
-print('Test Accuracy:     %.2f%%' % (pipe_nn.score(X_test, y_test) * 100))
-
-# y_train_pred = pipe_nn.predict(X_train)
-
-# if sys.version_info < (3, 0):
-#     acc = ((np.sum(y_train == y_train_pred, axis=0)).astype('float') /
-#            X_train.shape[0])
-# else:
-#     acc = np.sum(y_train == y_train_pred, axis=0) / X_train.shape[0]
-
-# print('Training Accuracy: %.2f%%' % (acc * 100))
-
-# y_test_pred = pipe_nn.predict(X_test)
-
-# if sys.version_info < (3, 0):
-#     acc = ((np.sum(y_test == y_test_pred, axis=0)).astype('float') /
-#            X_test.shape[0])
-# else:
-#     acc = np.sum(y_test == y_test_pred, axis=0) / X_test.shape[0]
-
-# print('Test Accuracy: %.2f%%' % (acc * 100))
+score = pipe_nn.score(X_test, y_test)
+print('Accuracy: %.2f' % (score * 100))
