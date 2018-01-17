@@ -71,7 +71,7 @@ pipe_nn.fit(X_train, y_train)
 # Saving result
 pred = pipe_nn.predict(X_test)
 file = open('prediction.txt', 'w')
-for i in pred:
+for i in range(len(pred)):
     file.write('|{}\n'.format(pred[i]))
 file.close()
 
@@ -79,5 +79,17 @@ if (len(sys.argv) == 5):
     print('%.2f' % (pipe_nn.score(X_train, y_train) * 100))
     print('%.2f' % (pipe_nn.score(X_test, y_test) * 100))
 elif (len(sys.argv) == 4):
-    for i in pred:
-        print('|{}'.format(pred[i]))
+    fig, ax = plt.subplots(nrows=5, ncols=5, sharex=True, sharey=True,)
+    ax = ax.flatten()
+    for i in range(25):
+        img = X_test[i].reshape(28, 28)
+        ax[i].imshow(img, cmap='Greys', interpolation='nearest')
+        ax[i].set_title('%d) p: %d' % (i + 1, pred[i+25]))
+
+    ax[0].set_xticks([])
+    ax[0].set_yticks([])
+    plt.tight_layout()
+    plt.show()
+    # for i in len(pred):
+    #     print('|{}'.format(pred[i]))
+    
