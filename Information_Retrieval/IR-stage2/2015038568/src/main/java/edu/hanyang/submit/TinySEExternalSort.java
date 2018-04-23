@@ -55,7 +55,7 @@ public class TinySEExternalSort implements ExternalSort {
             // System.out.printf("[1st:%d] Create File\n", n);
             // file save
             String fileName = filePrefix + String.valueOf(0) + "_" + String.valueOf(n) + filePostfix;
-            DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(fileName), buffersize));
+            DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(fileName, true), buffersize));
             File f = new File(fileName);
             
             if (!f.exists()) {
@@ -117,7 +117,7 @@ public class TinySEExternalSort implements ExternalSort {
         DataInputStream leftDis = new DataInputStream(new BufferedInputStream(new FileInputStream(leftInfile), buffersize));
         DataInputStream rightDis = new DataInputStream(new BufferedInputStream(new FileInputStream(rightInfile), buffersize));
         DataOutputStream dos = new DataOutputStream(
-            new BufferedOutputStream(new FileOutputStream(outfile), buffersize));
+            new BufferedOutputStream(new FileOutputStream(outfile, true), buffersize));
         
         while ((leftDis.available() > 0) && (rightDis.available() > 0)) {
             MutableTriple<Integer, Integer, Integer> left = readTriple(leftDis);
@@ -175,7 +175,7 @@ public class TinySEExternalSort implements ExternalSort {
             DataInputStream rightDis = new DataInputStream(
                     new BufferedInputStream(new FileInputStream(rightInfile), buffersize));
             DataOutputStream dos = new DataOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(outfile), buffersize));
+                    new BufferedOutputStream(new FileOutputStream(outfile, true), buffersize));
 
             while ((leftDis.available() > 0) && (rightDis.available() > 0)) {
                 MutableTriple<Integer, Integer, Integer> left = readTriple(leftDis);
@@ -205,9 +205,10 @@ public class TinySEExternalSort implements ExternalSort {
                 }
             }
             
+            dos.close();
             leftDis.close();
             rightDis.close();
-            dos.close();
+            
         }
     }
 
