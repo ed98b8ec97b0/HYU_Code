@@ -16,7 +16,8 @@ import org.apache.commons.lang3.tuple.MutableTriple;
 
 public class TinySEExternalSort implements ExternalSort {
     ArrayList<MutableTriple<Integer, Integer, Integer>> arr = new ArrayList<MutableTriple<Integer, Integer, Integer>>();
-    int arrSize = 15625;
+    int fileCnt = 64;
+    int tripleCnt = 15625;
     int arrBuf = 15625;
     String filePrefix = "./tmp/sorting";
     String filePostfix = ".data";
@@ -38,8 +39,8 @@ public class TinySEExternalSort implements ExternalSort {
         // 첫번째 정렬.
         DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(infile), buffersize));
 
-        for (n = 0; n < 64; n++) {
-            for (i = 0; i < arrSize; i++) {
+        for (n = 0; n < fileCnt; n++) {
+            for (i = 0; i < tripleCnt; i++) {
                 MutableTriple<Integer, Integer, Integer> tmp = readTriple(dis);
                 arr.add(tmp);
                 tmp = null;
@@ -99,7 +100,7 @@ public class TinySEExternalSort implements ExternalSort {
                 f.delete();
                 f.createNewFile();
             }
-            
+
             DataInputStream leftDis = new DataInputStream(
                     new BufferedInputStream(new FileInputStream(leftInfile), buffersize));
             DataInputStream rightDis = new DataInputStream(
@@ -113,12 +114,15 @@ public class TinySEExternalSort implements ExternalSort {
                 j = comparison(left, right);
                 if (j == -1) {
                     arr.add(right);
+                    right = null;
                     if (rightDis.available() > 0) {
                         right = readTriple(rightDis);
                     }
                 } else if (j == 0) {
                     arr.add(left);
                     arr.add(right);
+                    left = null;
+                    right = null;
                     if (leftDis.available() > 0) {
                         left = readTriple(leftDis);
                     }
@@ -127,6 +131,7 @@ public class TinySEExternalSort implements ExternalSort {
                     }
                 } else {
                     arr.add(left);
+                    left = null;
                     if (leftDis.available() > 0) {
                         left = readTriple(leftDis);
                     }
@@ -141,6 +146,7 @@ public class TinySEExternalSort implements ExternalSort {
             while (leftDis.available() > 0) {
                 left = readTriple(leftDis);
                 arr.add(left);
+                left = null;
                 if (leftDis.available() > 0) {
                     left = readTriple(leftDis);
                 }
@@ -154,6 +160,7 @@ public class TinySEExternalSort implements ExternalSort {
             while (rightDis.available() > 0) {
                 right = readTriple(rightDis);
                 arr.add(right);
+                right = null;
                 if (rightDis.available() > 0) {
                     right = readTriple(rightDis);
                 }
