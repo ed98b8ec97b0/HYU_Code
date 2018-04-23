@@ -55,7 +55,6 @@ public class TinySEExternalSort implements ExternalSort {
             // System.out.printf("[1st:%d] Create File\n", n);
             // file save
             String fileName = filePrefix + String.valueOf(0) + "_" + String.valueOf(n) + filePostfix;
-            DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(fileName, true), buffersize));
             File f = new File(fileName);
             
             if (!f.exists()) {
@@ -68,10 +67,9 @@ public class TinySEExternalSort implements ExternalSort {
             // System.out.printf("[1st:%d] Save Data\n", n);
             for (i = 0; i < arr.size(); i++) {
                 // System.out.println(arr.get(i));
-                writeTriple(dos, arr.get(i));    
+                writeTriple(fileName, buffersize, arr.get(i));    
             }
             arr.clear();
-            dos.close();
         }
         dis.close();
 
@@ -116,40 +114,37 @@ public class TinySEExternalSort implements ExternalSort {
 
         DataInputStream leftDis = new DataInputStream(new BufferedInputStream(new FileInputStream(leftInfile), buffersize));
         DataInputStream rightDis = new DataInputStream(new BufferedInputStream(new FileInputStream(rightInfile), buffersize));
-        DataOutputStream dos = new DataOutputStream(
-            new BufferedOutputStream(new FileOutputStream(outfile, true), buffersize));
         
         while ((leftDis.available() > 0) && (rightDis.available() > 0)) {
             MutableTriple<Integer, Integer, Integer> left = readTriple(leftDis);
             MutableTriple<Integer, Integer, Integer> right = readTriple(rightDis);
             j = comparison(left, right);
             if (j == -1) {
-                writeTriple(dos, right);
+                writeTriple(outfile, buffersize, right);
                 left = readTriple(rightDis);
             } else if (j == 0) {
-                writeTriple(dos, left);
-                writeTriple(dos, right);
+                writeTriple(outfile, buffersize, left);
+                writeTriple(outfile, buffersize, right);
                 left = readTriple(leftDis);
                 right = readTriple(rightDis);
             } else {
-                writeTriple(dos, left);
+                writeTriple(outfile, buffersize, left);
                 left = readTriple(leftDis);
             }
 
             while (leftDis.available() > 0) {
-                writeTriple(dos, left);
+                writeTriple(outfile, buffersize, left);
                 left = readTriple(leftDis);
             }
 
             while (rightDis.available() > 0) {
-                writeTriple(dos, right);
+                writeTriple(outfile, buffersize, right);
                 left = readTriple(rightDis);
             }
         }
 
         leftDis.close();
         rightDis.close();
-        dos.close();
     }
     
 
@@ -174,38 +169,36 @@ public class TinySEExternalSort implements ExternalSort {
                     new BufferedInputStream(new FileInputStream(leftInfile), buffersize));
             DataInputStream rightDis = new DataInputStream(
                     new BufferedInputStream(new FileInputStream(rightInfile), buffersize));
-            DataOutputStream dos = new DataOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(outfile, true), buffersize));
+            
 
             while ((leftDis.available() > 0) && (rightDis.available() > 0)) {
                 MutableTriple<Integer, Integer, Integer> left = readTriple(leftDis);
                 MutableTriple<Integer, Integer, Integer> right = readTriple(rightDis);
                 j = comparison(left, right);
                 if (j == -1) {
-                    writeTriple(dos, right);
+                    writeTriple(outfile, buffersize, right);
                     left = readTriple(rightDis);
                 } else if (j == 0) {
-                    writeTriple(dos, left);
-                    writeTriple(dos, right);
+                    writeTriple(outfile, buffersize, left);
+                    writeTriple(outfile, buffersize, right);
                     left = readTriple(leftDis);
                     right = readTriple(rightDis);
                 } else {
-                    writeTriple(dos, left);
+                    writeTriple(outfile, buffersize, left);
                     left = readTriple(leftDis);
                 }
 
                 while (leftDis.available() > 0) {
-                    writeTriple(dos, left);
+                    writeTriple(outfile, buffersize, left);
                     left = readTriple(leftDis);
                 }
 
                 while (rightDis.available() > 0) {
-                    writeTriple(dos, right);
+                    writeTriple(outfile, buffersize, right);
                     left = readTriple(rightDis);
                 }
             }
             
-            dos.close();
             leftDis.close();
             rightDis.close();
             
@@ -247,10 +240,15 @@ public class TinySEExternalSort implements ExternalSort {
         return triple;
     }
 
-    private void writeTriple(DataOutputStream dos, MutableTriple<Integer, Integer, Integer> triple) throws IOException {
+    private void writeTriple(String outfile, int buffersize, MutableTriple<Integer, Integer, Integer> triple) throws IOException {
+        DataOutputStream dos = new DataOutputStream(
+                new BufferedOutputStream(new FileOutputStream(outfile, true), buffersize));
+
         dos.writeInt(triple.getLeft());
         dos.writeInt(triple.getMiddle());
         dos.writeInt(triple.getRight());
+
+        dos.close();
     }
 
     private void mergeSort(ArrayList<MutableTriple<Integer, Integer, Integer>> arr, int low, int high) {
