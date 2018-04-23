@@ -14,7 +14,7 @@ import edu.hanyang.indexer.ExternalSort;
 
 import org.apache.commons.lang3.tuple.MutableTriple;
 
-public class TinySEExternalSort implements ExternalSort {
+public class TinySEExternalSort extends Thread implements ExternalSort {
     ArrayList<MutableTriple<Integer, Integer, Integer>> arr = new ArrayList<MutableTriple<Integer, Integer, Integer>>();
     int fileCnt = 64;
     int tripleCnt = 15625;
@@ -83,8 +83,6 @@ public class TinySEExternalSort implements ExternalSort {
     }
 
     private void externalSort(int level, int fileCnt, int buffersize, String outfile) throws IOException {
-        int j;
-
         for (int i = 0; i < fileCnt; i ++) {
             String leftInfile = filePrefix + String.valueOf(level-1) + "_" + String.valueOf(2*i) + filePostfix;
             String rightInfile = filePrefix + String.valueOf(level-1) + "_" + String.valueOf(2*i + 1) + filePostfix;
@@ -106,78 +104,8 @@ public class TinySEExternalSort implements ExternalSort {
             DataInputStream rightDis = new DataInputStream(
                     new BufferedInputStream(new FileInputStream(rightInfile), buffersize));
 
-
-            MutableTriple<Integer, Integer, Integer> left = readTriple(leftDis);
-            MutableTriple<Integer, Integer, Integer> right = readTriple(rightDis);
-
-            while ((leftDis.available() > 0) && (rightDis.available() > 0)) {
-                j = comparison(left, right);
-                if (j == -1) {
-                    arr.add(right);
-                    right = null;
-                    if (rightDis.available() > 0) {
-                        right = readTriple(rightDis);
-                    }
-                } else if (j == 0) {
-                    arr.add(left);
-                    arr.add(right);
-                    left = null;
-                    right = null;
-                    if (leftDis.available() > 0) {
-                        left = readTriple(leftDis);
-                    }
-                    if (rightDis.available() > 0) {
-                        right = readTriple(rightDis);
-                    }
-                } else {
-                    arr.add(left);
-                    left = null;
-                    if (leftDis.available() > 0) {
-                        left = readTriple(leftDis);
-                    }
-                }
-
-                if (arr.size() >= arrBuf) {
-                    writeArr(outfile, buffersize, arr);
-                    arr.clear();
-                }
-            }
-
-            while (leftDis.available() > 0) {
-                left = readTriple(leftDis);
-                arr.add(left);
-                left = null;
-                if (leftDis.available() > 0) {
-                    left = readTriple(leftDis);
-                }
-
-                if (arr.size() >= arrBuf) {
-                    writeArr(outfile, buffersize, arr);
-                    arr.clear();
-                }
-            }
-
-            while (rightDis.available() > 0) {
-                right = readTriple(rightDis);
-                arr.add(right);
-                right = null;
-                if (rightDis.available() > 0) {
-                    right = readTriple(rightDis);
-                }
-
-                if (arr.size() >= arrBuf) {
-                    writeArr(outfile, buffersize, arr);
-                    arr.clear();
-                }
-            }
-
-            if (arr.size() > 0) {
-                writeArr(outfile, buffersize, arr);
-                arr.clear();
-            }
-
-            leftDis.close();
-            rightDis.close();
+            Threading t = new Threading();
+            t.run(leftDis, rightDis, outfile, buffersize);
         }
     }
 
@@ -272,4 +200,82 @@ public class TinySEExternalSort implements ExternalSort {
             arr.set(ptr3++, right.get(ptr2++));
         }
     }
+
+    public class Threading extends Thread {
+        public void run(DataInputStream leftDis, DataInputStream rightDis, String outfile, int buffersize) throws IOException {
+            MutableTriple<Integer, Integer, Integer> left = readTriple(leftDis);
+            MutableTriple<Integer, Integer, Integer> right = readTriple(rightDis);
+            int j;
+
+            while ((leftDis.available() > 0) && (rightDis.available() > 0)) {
+                j = comparison(left, right);
+                if (j == -1) {
+                    arr.add(right);
+                    right = null;
+                    if (rightDis.available() > 0) {
+                        right = readTriple(rightDis);
+                    }
+                } else if (j == 0) {
+                    arr.add(left);
+                    arr.add(right);
+                    left = null;
+                    right = null;
+                    if (leftDis.available() > 0) {
+                        left = readTriple(leftDis);
+                    }
+                    if (rightDis.available() > 0) {
+                        right = readTriple(rightDis);
+                    }
+                } else {
+                    arr.add(left);
+                    left = null;
+                    if (leftDis.available() > 0) {
+                        left = readTriple(leftDis);
+                    }
+                }
+
+                if (arr.size() >= arrBuf) {
+                    writeArr(outfile, buffersize, arr);
+                    arr.clear();
+                }
+            }
+
+            while (leftDis.available() > 0) {
+                left = readTriple(leftDis);
+                arr.add(left);
+                left = null;
+                if (leftDis.available() > 0) {
+                    left = readTriple(leftDis);
+                }
+
+                if (arr.size() >= arrBuf) {
+                    writeArr(outfile, buffersize, arr);
+                    arr.clear();
+                }
+            }
+
+            while (rightDis.available() > 0) {
+                right = readTriple(rightDis);
+                arr.add(right);
+                right = null;
+                if (rightDis.available() > 0) {
+                    right = readTriple(rightDis);
+                }
+
+                if (arr.size() >= arrBuf) {
+                    writeArr(outfile, buffersize, arr);
+                    arr.clear();
+                }
+            }
+
+            if (arr.size() > 0) {
+                writeArr(outfile, buffersize, arr);
+                arr.clear();
+            }
+
+            leftDis.close();
+            rightDis.close();
+        }
+    }
 }
+
