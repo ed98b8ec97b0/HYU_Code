@@ -46,22 +46,8 @@ public class TinySEExternalSort extends Thread implements ExternalSort {
                 tmp = null;
             }
 
-            // mergesort
-            mergeSort(arr, 0, arr.size()-1);
-
-            // file save
-            String fileName = filePrefix + String.valueOf(0) + "_" + String.valueOf(n) + filePostfix;
-            File f = new File(fileName);
-            
-            if (!f.exists()) {
-                f.createNewFile();
-            } else {
-                f.delete();
-                f.createNewFile();
-            }
-
-            writeArr(fileName, buffersize, arr);
-            arr.clear();
+            Threading t = new Threading();
+            t.sort(arr, buffersize, n);
         }
         dis.close();
 
@@ -275,6 +261,24 @@ public class TinySEExternalSort extends Thread implements ExternalSort {
 
             leftDis.close();
             rightDis.close();
+        }
+
+        private void sort(ArrayList<MutableTriple<Integer, Integer, Integer>> arr, int buffersize, int n) throws IOException {
+            mergeSort(arr, 0, arr.size() - 1);
+
+            // file save
+            String fileName = filePrefix + String.valueOf(0) + "_" + String.valueOf(n) + filePostfix;
+            File f = new File(fileName);
+
+            if (!f.exists()) {
+                f.createNewFile();
+            } else {
+                f.delete();
+                f.createNewFile();
+            }
+
+            writeArr(fileName, buffersize, arr);
+            arr.clear();
         }
     }
 }
