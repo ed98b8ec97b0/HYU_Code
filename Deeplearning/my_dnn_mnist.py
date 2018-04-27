@@ -15,14 +15,17 @@ import timeit
 import random
 
 # Parameters
+# learning_rate_list = [0.01]
+# n_epochs_list = [30]
+# batch_size_list = [128]
 learning_rate_list = []
 n_epochs_list = []
 batch_size_list = []
 
 for _ in range(0, 100):
-    learning_rate_list.append(random.uniform(0.005, 0.05))
-    n_epochs_list.append(random.randrange(80, 240))
-    batch_size_list.append(random.randrange(100, 200))
+    learning_rate_list.append(random.uniform(0.012, 0.015))
+    n_epochs_list.append(random.randrange(85, 95))
+    batch_size_list.append(random.randrange(100, 150))
 
 display_step = 1
 times = 5
@@ -31,7 +34,11 @@ times = 5
 for learning_rate, n_epochs, batch_size in zip(learning_rate_list, n_epochs_list, batch_size_list):
     # Network parameters
     n_layers = 2
-    n_units = 1600
+    b = random.choice([True, False])
+    if (b):
+        n_units = 1600
+    else:
+        n_units = 800
     h_layers = {}
 
     print('-------------------------------------------------\n')
@@ -85,7 +92,7 @@ for learning_rate, n_epochs, batch_size in zip(learning_rate_list, n_epochs_list
         # Define loss and optimizer
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=Y))
 
-        #optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+        # optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
         optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate).minimize(loss)
 
 
@@ -130,5 +137,12 @@ for learning_rate, n_epochs, batch_size in zip(learning_rate_list, n_epochs_list
     sess_end = timeit.default_timer()
 
     print('==> Total learning time: {0:.0f}m {1:.0f}s\n'.format((sess_end-sess_start)/60, (sess_end-sess_start)%60))
+
+# Best Case
+# learning_rate = 0.012
+# n_epoch = 94
+# batch_size = 135
+# n_layers = 2
+# n_units = 1600
 
 print('-------------------------------------------------')
