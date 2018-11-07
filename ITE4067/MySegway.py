@@ -8,11 +8,9 @@ import time
 import sys
 
 # Constants
-RAD_PER_DEG = math.pi / 180
-DEG_PER_SEC_PER_RAW_GYRO_UNIT = 1
-RAD_PER_SEC_PER_RAW_GYRO_UNIT = DEG_PER_SEC_PER_RAW_GYRO_UNIT * RAD_PER_DEG
-SPEED_CONSTANT = 44
-RUNTIME = 0.1
+SPEED_LOW_CAP = 43
+SPEED_HIGH_CAP = 60
+RUNTIME = 0.10
 
 # device setting
 sound = Sound()
@@ -37,9 +35,15 @@ def _fast_write(outfile, value):
 def move_tank(speed, x):
     motor_tank.on_for_seconds(speed, speed, x)
 
+def lowest_speed(x):
+    if (abs(x) < SPEED_LOW_CAP):
+        return SPEED_LOW_CAP
+    if (abs(x) > SPEED_HIGH_CAP):
+        return SPEED_HIGH_CAP
+    return abs(x)
+
 # calibration
 gyro_rate = 0
-gyro_est_angle = 0
 gyro_offset = 0
 
 sound.beep()
@@ -57,10 +61,12 @@ motor_tank.run_direct()
 while(1):
     # balancing
     gyro_rate_raw = _fast_read(gyro_file)
-    gyro_rate = (gyro_rate_raw - gyro_offset) * RAD_PER_SEC_PER_RAW_GYRO_UNIT
-    if (gyro_rate >= 0.1):
-        move_tank(SPEED_CONSTANT, RUNTIME)
-    elif (gyro_rate <= -0.1):
-        move_tank(-SPEED_CONSTANT, RUNTIME)
+    gyro_rate = (gyro_rate_raw - gyro_offset)
+    speed = lowest_speed(gyro_rate)
+
+    if (gyro_rate >= 0):
+        print(speed)
+        move_tank(speed, RUNTIME)
     else:
-        move_tank(SPEED_CONSTANT, RUNTIME * 2)
+        print(-speed)
+        move_tank(-speed, RUNTIME)
