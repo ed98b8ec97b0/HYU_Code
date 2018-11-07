@@ -15,7 +15,7 @@ RUNTIME = 0.10
 # device setting
 sound = Sound()
 gyro = GyroSensor(INPUT_2)
-gyro.mode = gyro.MODE_GYRO_RATE
+gyro.mode = gyro.MODE_GYRO_ANG
 motor_tank = MoveTank(OUTPUT_A, OUTPUT_D)
 gyro_file = open(gyro._path + "/value0", "rb")
 
@@ -33,7 +33,7 @@ def _fast_write(outfile, value):
 
 # function for motor
 def move_tank(speed, x):
-    motor_tank.on_for_seconds(speed, speed, x)
+    motor_tank.on_for_degrees(speed, speed, x)
 
 def lowest_speed(x):
     if (abs(x) < SPEED_LOW_CAP):
@@ -57,16 +57,19 @@ gyro_offset = gyro_offset / gyro_calibrate_count
 sound.beep()
 motor_tank.reset()
 motor_tank.run_direct()
+flag = 1
 
 while(1):
     # balancing
     gyro_rate_raw = _fast_read(gyro_file)
     gyro_rate = (gyro_rate_raw - gyro_offset)
-    speed = lowest_speed(gyro_rate)
-
+    if (flag == 1):
+        flag = 0
+        gyro_init = gyro_rate
+        motor_tank.on_for_degrees(SPEED_LOW_CAP, SPEED_LOW_CAP, 60)
+    deg = gyro_rate - gyro_init
+    
     if (gyro_rate >= 0):
-        print(speed)
-        move_tank(speed, RUNTIME)
+        move_tank(SPEED_LOW_CAP, deg)
     else:
-        print(-speed)
-        move_tank(-speed, RUNTIME)
+        move_tank(-SPEED_LOW_CAP, deg)
