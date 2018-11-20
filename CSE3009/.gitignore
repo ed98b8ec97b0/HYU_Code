@@ -2,3 +2,4 @@
 *.interp
 Rendering*.java
 .antlr/
+compiler2018/
