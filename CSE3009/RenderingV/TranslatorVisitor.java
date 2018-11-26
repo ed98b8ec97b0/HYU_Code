@@ -33,10 +33,6 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
 
   @Override public Void visitBlocks(RenderingParser.BlocksContext ctx) {
     for(RenderingParser.BlockContext blockContext : ctx.block()) {
-      if (flag_sharp == 0 && flag_star == 0) {
-        former_level = 0;
-        stack_reset();
-      }
       this.visit(blockContext);
     };
     return null;
@@ -44,6 +40,7 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
 
   @Override public Void visitPLAINTEXT(RenderingParser.PLAINTEXTContext ctx) {
     flag_reset();
+    stack_reset();
     System.out.println(ctx.TEXT().getText());
     return null;
   }
@@ -73,7 +70,11 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
     else if (former_level > current_level) {
       flag_star = 1;
       flag_sharp = 0;
-      System.out.println(closer.pop());
+
+      for (int i = 0; i < former_level - current_level; i++) {
+        System.out.println(closer.pop());
+      }
+
       former_level = current_level;
     }
     
@@ -107,12 +108,14 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
     else if (former_level > current_level) {
       flag_star = 0;
       flag_sharp = 1;
-      System.out.println(closer.pop());
+
+      for (int i = 0; i < former_level - current_level; i++) {
+        System.out.println(closer.pop());
+      }
+
       former_level = current_level;
     }
 
-    
-    
     System.out.println("<li>" + ctx.TEXT().getText() + " </li>");
 
     return null;
@@ -120,6 +123,7 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
 
   @Override public Void visitHEADER(RenderingParser.HEADERContext ctx) {
     flag_reset();
+    stack_reset();
     int open = ctx.EQs(0).getText().length();
     int close = ctx.EQs(1).getText().length();
     if (open == close && open <= 6) {
@@ -136,6 +140,7 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
 
   @Override public Void visitINDENT(RenderingParser.INDENTContext ctx) {
     flag_reset();
+    stack_reset();
     int num = ctx.COLONs().getText().length();
 
     if (num <= 6) {
@@ -152,6 +157,7 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
   
   @Override public Void visitHORIZONTAL(RenderingParser.HORIZONTALContext ctx) {
     flag_reset();
+    stack_reset();
     int num = ctx.HYPHENs().getText().length();
 
     if (num == 4) {
