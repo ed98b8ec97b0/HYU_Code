@@ -11,10 +11,12 @@ document : blocks ;
 
 blocks : (block NEWLINE)* ;
 
-block : TEXT          # PLAINTEXT
-      | EQs TEXT EQs  # HEADER
-      | COLONs TEXT   # INDENT
-      | HYPHENs       # HORIZONTAL
+block : TEXT                          # PLAINTEXT
+      | EQs TEXT EQs                  # HEADER
+      | COLONs TEXT                   # INDENT
+      | HYPHENs                       # HORIZONTAL
+      | SHARPs TEXT                   # SHARP
+      | STARs TEXT                    # STAR
       ;
 
 /*
