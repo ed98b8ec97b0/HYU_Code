@@ -154,18 +154,4 @@ public class TranslatorVisitor extends RenderingBaseVisitor<Void> {
     
     return null;
   }
-  
-  @Override public Void visitHORIZONTAL(RenderingParser.HORIZONTALContext ctx) {
-    flag_reset();
-    stack_reset();
-    int num = ctx.HYPHENs().getText().length();
-
-    if (num == 4) {
-      System.out.println("<hr />");
-    } else {
-      System.out.println(ctx.HYPHENs().getText());
-    }
-
-    return null;
-  }
 }
