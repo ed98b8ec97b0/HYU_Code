@@ -1,0 +1,36 @@
+x : int;
+y : int;
+cond : bool;
+
+x = (2 + 3) * 2;
+y = (6 - 2) / 2;
+
+cond = x > 10;
+if cond then print 404;
+
+cond = x >= 10;
+if cond then print x;
+
+cond = y < 2;
+if cond then print 404;
+
+cond = y <= 4;
+if cond then print y;
+
+cond = x == 10;
+if cond then print 1;
+
+cond = x != y;
+if cond then print x + y;
+
+cond = x >= 10 & y <= 4;
+if cond then print x - y;
+
+cond = x > 15 | y < 5;
+if cond then print x * y;
+
+cond = x > 15 ^ y < 5;
+if cond then print x / y;
+
+cond = x >= 10 ^ y <= 4;
+if cond then print 0;
