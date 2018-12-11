@@ -49,13 +49,13 @@ public class Run {
         ast.print();
         System.out.println("checking ...");
         Checker checker = new Checker();
-        if (checker.type_checker(ast) || !checker.use_of_undefined_variables(ast)) {
+        if (checker.type_checker(ast) && !checker.use_of_undefined_variables(ast)) {
             System.out.println("excuting ...");
             ast.execute();
             System.out.println("optimizing ...");
             Optimizer opt = new Optimizer();
             ast = opt.run(ast);
-            if (checker.type_checker(ast) || !checker.use_of_undefined_variables(ast)) {
+            if (checker.type_checker(ast) && !checker.use_of_undefined_variables(ast)) {
                 ast.print();
                 System.out.println("excuting ...");
                 ast.execute();

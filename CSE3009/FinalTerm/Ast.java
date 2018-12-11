@@ -393,6 +393,10 @@ class E_Var extends Expr {
   Value eval(Env env) {
     return env.lookup(v.name);
   }
+  
+  Type eval(TypeEnv te) {
+    return te.lookup(v.name);
+  }
 
   public String toString() {
     return v.toString();
