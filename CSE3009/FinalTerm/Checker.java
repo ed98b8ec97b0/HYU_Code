@@ -38,16 +38,9 @@ class Checker {
       Variable lhs = ((Assign)s).lhs;
       Expr rhs = ((Assign)s).rhs;
       if (type_checker_expr(rhs, te)) {
-        if (te.lookup(lhs.name) instanceof IntType && rhs.eval(new Env()) instanceof IntValue) {
-          System.out.println("[INT] " + lhs.name + ", " + rhs.eval(new Env()).toString());
-          return true;
-        } else if (te.lookup(lhs.name) instanceof BoolType && rhs.eval(new Env()) instanceof BoolValue) {
-          System.out.println("[BOL] " + lhs.name + ", " + rhs.eval(new Env()).toString());
-          return true;
-        } else {
-          System.out.println("[ELS] " + lhs.name + ", " + rhs.eval(new Env()).toString());
-          return false;
-        }
+        Type t = te.lookup(lhs.name);
+        Value v = rhs.fromValue();
+        
       } else {
         return false;
       }
@@ -73,13 +66,7 @@ class Checker {
         } else if (((E_Bop)e).e1.eval(new Env()) instanceof BoolValue && ((E_Bop)e).e2.eval(new Env()) instanceof BoolValue) {
           return true;
         } else if (((E_Bop)e).e1 instanceof E_Var && ((E_Bop)e).e2 instanceof E_Var) {
-          if (((E_Var)(((E_Bop)e).e1)).eval(te) instanceof IntType && ((E_Var)(((E_Bop)e).e2)).eval(te) instanceof IntType) {
             return true;
-          } else if (((E_Var)(((E_Bop)e).e1)).eval(te) instanceof BoolType && ((E_Var)(((E_Bop)e).e2)).eval(te) instanceof BoolType) {
-            return true;
-          } else {
-            return false;
-          }
         } else {
           System.out.println("[E_ELS] " + ((E_Bop)e).e1.toString() + ", " + ((E_Bop)e).e2.toString());
           return false;
@@ -108,7 +95,7 @@ class Checker {
   // 선언된 변수의 집합을 모읍니다.
   HashSet declared_variables_decl(Declaration d) {
     HashSet <String> h = new HashSet();
-    for (Declaration de : ((Decls)(ast.d)).ds) {
+    for (Declaration de : ((Decls)d).ds) {
       h.add(((VarDecl)de).v.name);
     }
     return new HashSet();
