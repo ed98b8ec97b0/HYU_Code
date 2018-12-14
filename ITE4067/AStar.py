@@ -25,41 +25,34 @@ class AStar:
     def find_direction(self, head, wall):
         x, y = head
         direction = {}
-        if (x != 0):
+        if (x > 0):
             direction[(-1, 0)] = wall[(x-1, y)]
-        if (x != len(self.graph)):
+        if (x < len(self.graph)-1):
             direction[(1, 0)] = wall[(x+1, y)]
-        if (y != 0):
+        if (y > 0):
             direction[(0, -1)] = wall[(x, y-1)]
-        if (y != len(self.graph[0])):
+        if (y < len(self.graph[0])-1):
             direction[(0, 1)] = wall[(x, y+1)]
         return direction
 
     def search(self, head, wall, history):
         if head == self.target:
-            print("{}[{}]: Complete!\n{}\n".format(head, len(history), history))
             self.result.append((len(history), history))
-            return
-        if head == self.init:
-            print("{}[{}]: Start!\n{}\n".format(head, self.f(head, history), history))
         direction = self.find_direction(head, wall)
         move_cost = {}
         for d in direction:
             if direction[d] == 0:
                 future = tuple(map(operator.add, head, d))
-                move_cost[d] = self.f(head, history)
+                move_cost[d] = self.f(future, history)
         if bool(move_cost):
             sorted_cost = sorted(move_cost.items(), key=lambda kv: kv[1])
-            for s in dict(sorted_cost):
+            for s, _ in sorted_cost:
                 future = tuple(map(operator.add, head, s))
                 new_wall = copy.deepcopy(wall)
                 new_wall[head] = 1
                 new_history = copy.deepcopy(history)
                 new_history.append(head)
-                print("{}[{}] -> {}[{}]:\n{}\n".format(head, self.f(head, history), future, self.f(future, new_history), new_history))
                 self.search(future, new_wall, new_history)
-        else:
-            print("{}[{}]: No Way!\n{}\n".format(head, self.f(head, history), history))
             
 
 
@@ -77,5 +70,5 @@ if __name__ == "__main__":
     a = AStar(init=(0,1), target=(9,5), graph=graph)
     wall = a.close(x=len(graph), y=len(graph[0]))
     a.search((0,1), wall, [])
-    print(sorted(a.result)[0][1])
+    print(sorted(a.result))
     
