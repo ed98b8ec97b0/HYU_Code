@@ -51,7 +51,7 @@ class AStar:
                 new_wall = copy.deepcopy(wall)
                 new_wall[head] = 1
                 new_history = copy.deepcopy(history)
-                new_history.append(head)
+                new_history.append(s)
                 self.search(future, new_wall, new_history)
             
 

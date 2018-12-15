@@ -23,18 +23,20 @@ class MazeRunner:
         if (reset == 0):
             if (self.head == 0):
                 for _ in range(10):
-                    self.move(0)
+                    self.move((0, 1))
                     line.append(self.cs.value())
+                return line
             elif (self.head == 9):
                 for _ in range(10):
-                    self.move(3)
+                    self.move((0, -1))
                     line.append(self.cs.value())
+                return line.reverse()
         else:
             for _ in range(self.head):
-                self.move(3)
+                self.move((0, -1))
             for _ in range(self.paper):
-                self.move(2)
-        return line
+                self.move((-1, 0))
+            return line
 
     def announcer(self, cmap):
         for l in range(int(len(self.maze)/10) - 1):
@@ -45,16 +47,16 @@ class MazeRunner:
                     print("{:<6}".format(cmap[self.maze[p + l * 10]]))
 
     def move(self, direction):
-        if (direction == 0):
+        if (direction == (0, 1)):
             self.scanner.on_for_seconds(self.sspeed, self.stime)
             self.head += 1
-        elif (direction == 1):
+        elif (direction == (1, 0)):
             self.roller.on_for_seconds(self.sspeed, self.stime)
             self.paper += 1
-        elif (direction == 2):
+        elif (direction == (-1, 0)):
             self.roller.on_for_seconds(-self.sspeed, self.stime)
             self.paper -= 1
-        elif (direction == 3):
+        elif (direction == (0, 1)):
             self.scanner.on_for_seconds(self.sspeed, self.stime)
             self.head -= 1
     
@@ -72,11 +74,16 @@ class MazeRunner:
 
 
 if __name__ == "__main__":
-    mr = MazeRunner(sspeed=5, rspeed=5)
+    from AStar import AStar
+
+    mr = MazeRunner(sspeed=5, rspeed=5) # TODO : sspeed, rspeed 적당한 값 찾기
     line = mr.navigator(line=[], reset=1)    
     while(mr.ending(line=line)):
         line = mr.navigator(line=[])
         mr.maze.append(line)
         mr.move(direction=1)
     mr.announcer(cmap=['None', 'Black', 'Blue', 'Green', 'Yellow', 'Red', 'White', 'Brown'])
-    # mr.running(commands=mr.analyze())
+    a = AStar(init=(0,1), target=(9,5), graph=mr.maze)
+    wall = a.close(x=len(a.graph), y=len(a.graph[0]))
+    a.search((0,1), wall, [])
+    mr.running(sorted(a.result)[0][1])
