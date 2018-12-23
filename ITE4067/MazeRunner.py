@@ -18,6 +18,7 @@ class MazeRunner:
         self.maze = []
         self.head = 0
         self.paper = 0
+        self.target = (0, 0)
 
     def navigator(self, line, reset=0):
         if (reset == 0):
@@ -38,6 +39,38 @@ class MazeRunner:
                 self.move((-1, 0))
             return line
 
+    def seeker(self):
+        end = True
+        while (end):
+            line = []
+            if (self.head == 0):
+                for _ in range(10):
+                    color = self.cs.value()
+                    if (color == 5):
+                        end = False
+                        self.target = (self.head, self.paper)
+                    line.append(color)
+                    if (self.head != 9):
+                        self.move((0,1))
+                self.maze.append(line)
+            elif (self.head == 9):
+                for _ in range(10):
+                    color = self.cs.value()
+                    if (color == 5):
+                        end = False
+                        self.target = (self.head, self.paper)
+                    line.append(color)
+                    if (self.head != 0):
+                        self.move((0,-1))
+                line.reverse()
+                self.maze.append(line)
+            self.move((1,0))
+        for _ in range(self.head):
+            self.move((0,-1))
+        for _ in range(self.paper):
+            self.move((-1,0))
+            
+
     def announcer(self, cmap):
         for l in range(int(len(self.maze)/10) - 1):
             for p in range(10):
@@ -51,24 +84,25 @@ class MazeRunner:
             self.scanner.on_for_seconds(self.sspeed, self.stime)
             self.head += 1
         elif (direction == (1, 0)):
-            self.roller.on_for_seconds(self.sspeed, self.stime)
+            self.roller.on_for_seconds(self.rspeed, self.rtime)
             self.paper += 1
         elif (direction == (-1, 0)):
-            self.roller.on_for_seconds(-self.sspeed, self.stime)
+            self.roller.on_for_seconds(-self.rspeed, self.rtime)
             self.paper -= 1
-        elif (direction == (0, 1)):
-            self.scanner.on_for_seconds(self.sspeed, self.stime)
+        elif (direction == (0, -1)):
+            self.scanner.on_for_seconds(-self.sspeed, self.stime)
             self.head -= 1
     
     def ending(self, line):
+        print(line)
         for i in line:
             if i == 5:
-                return True
-        return False
+                return False
+        return True
 
     def running(self, commands):
-        self.navigator([], reset=1)
         for command in commands:
+            print(command)
             self.move(direction=command)
     
 
@@ -76,14 +110,15 @@ class MazeRunner:
 if __name__ == "__main__":
     from AStar import AStar
 
-    mr = MazeRunner(sspeed=5, rspeed=5) # TODO : sspeed, rspeed 적당한 값 찾기
-    line = mr.navigator(line=[], reset=1)    
-    while(mr.ending(line=line)):
-        line = mr.navigator(line=[])
-        mr.maze.append(line)
-        mr.move(direction=1)
-    mr.announcer(cmap=['None', 'Black', 'Blue', 'Green', 'Yellow', 'Red', 'White', 'Brown'])
-    a = AStar(init=(0,1), target=(9,5), graph=mr.maze)
+    mr = MazeRunner(sspeed=5.3, rspeed=6.8) # TODO : sspeed, rspeed 적당한 값 찾기
+    mr.seeker()
+    for line in mr.maze:
+        print(line)
+    mr.move((0,1))
+    mr.move((0,1))
+    mr.move((0,1))
+    a = AStar(init=(0,3), target=mr.target, graph=mr.maze)
     wall = a.close(x=len(a.graph), y=len(a.graph[0]))
     a.search((0,1), wall, [])
+    print(sorted(a.result[0][1]))
     mr.running(sorted(a.result)[0][1])
